@@ -1,5 +1,6 @@
-package com.workly.domain.user;
+package com.workly.dto.user;
 
+import com.workly.entity.UserRole;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

@@ -1,6 +1,5 @@
-package com.workly.domain.token;
+package com.workly.entity;
 
-import com.workly.domain.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 

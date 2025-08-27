@@ -1,4 +1,4 @@
-package com.workly.infra.security;
+package com.workly.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

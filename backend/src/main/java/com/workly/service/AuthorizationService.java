@@ -1,6 +1,6 @@
-package com.workly.services;
+package com.workly.service;
 
-import com.workly.repositories.UserRepository;
+import com.workly.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

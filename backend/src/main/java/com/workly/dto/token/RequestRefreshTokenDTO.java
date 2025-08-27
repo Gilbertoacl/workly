@@ -1,4 +1,4 @@
-package com.workly.domain.token;
+package com.workly.dto.token;
 
 public record RequestRefreshTokenDTO(String refreshToken) {
 }

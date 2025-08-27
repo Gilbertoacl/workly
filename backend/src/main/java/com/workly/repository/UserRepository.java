@@ -1,6 +1,6 @@
-package com.workly.repositories;
+package com.workly.repository;
 
-import com.workly.domain.user.User;
+import com.workly.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 

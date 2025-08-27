@@ -1,6 +1,7 @@
-package com.workly.infra.security;
+package com.workly.config;
 
-import com.workly.repositories.UserRepository;
+import com.workly.service.TokenService;
+import com.workly.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

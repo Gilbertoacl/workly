@@ -1,10 +1,9 @@
-package com.workly.services;
+package com.workly.service;
 
-import com.workly.domain.token.RefreshToken;
-import com.workly.repositories.RefreshTokenRepository;
-import com.workly.repositories.UserRepository;
+import com.workly.entity.RefreshToken;
+import com.workly.repository.RefreshTokenRepository;
+import com.workly.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;

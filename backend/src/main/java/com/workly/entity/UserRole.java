@@ -1,4 +1,4 @@
-package com.workly.domain.user;
+package com.workly.entity;
 
 public enum UserRole {
     ADMIN("admin"),
