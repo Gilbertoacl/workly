@@ -1,58 +1,61 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+
+function ErrorMsg({ children }) {
+    return <span className="text-red-400 text-xs mt-1 block">{children}</span>;
+}
+
+function validateEmail(email) {
+    return email.includes("@") && email.length > 5;
+}
+function validatePassword(password) {
+    return password.length >= 8;
+}
 
 const LoginPage = () => {
     const remembered = JSON.parse(localStorage.getItem("rememberedAccount") || "{}");
     const [email, setEmail] = useState(remembered.email || "");
     const [password, setPassword] = useState(remembered.password || "");
-    const [remember, setRemenber] = useState(!!remembered.remember);
+    const [remember, setRemember] = useState(!!remembered.remember);
 
     const [emailError, setEmailError] = useState("");
     const [passwordError, setPasswordError] = useState("");
     const [loading, setLoading] = useState(false);
     const [loginError, setLoginError] = useState("");
-
     const [submitted, setSubmitted] = useState(false);
 
     const navigate = useNavigate();
-    
+
     const handleSubmit = (ev) => {
         ev.preventDefault();
         setSubmitted(true);
 
-        if (remember) {
-            localStorage.setItem("rememberedAccount", JSON.stringify({ email, password, remember:true }));
-        } else {
-            localStorage.removeItem("rememberedAccount");
-        }
-
-        let valid = true; 
-        if (!email.includes("@")) {
+        let valid = true;
+        if (!validateEmail(email)) {
             setEmailError("Digite um e-mail válido.");
             valid = false;
         } else {
             setEmailError("");
         }
-
-        if (password.length < 8) {
-            setPasswordError("A Senha deve ter pelo menos 8 caracteres.");
+        if (!validatePassword(password)) {
+            setPasswordError("A senha deve ter pelo menos 8 caracteres.");
             valid = false;
         } else {
             setPasswordError("");
         }
-
         if (!valid) return;
 
         setLoading(true);
         setLoginError("");
-        
-        // Simulação de login assíncrono
+
         setTimeout(() => {
             setLoading(false);
             if (email !== "admin@email.com" || password !== "12345678") {
                 setLoginError("Usuário ou senha inválidos.");
                 return;
             }
+            
             if (remember) {
                 localStorage.setItem("rememberedAccount", JSON.stringify({ email, password, remember: true }));
             } else {
@@ -83,7 +86,7 @@ const LoginPage = () => {
                             {loginError && (
                                 <div className="text-red-400 text-center mb-2">{loginError}</div>
                             )}
-                            <div className="rounded-md shadow-sm">
+                            <div className="rounded-md">
                                 <div>
                                     <label className="sr-only" htmlFor="email">
                                         E-mail
@@ -99,8 +102,10 @@ const LoginPage = () => {
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         onFocus={() => setEmailError("")}
+                                        aria-invalid={!!emailError}
+                                        aria-describedby="email-error"
                                     />
-                                    {submitted && emailError && <span className="text-red-400 text-xs mt-1">{emailError}</span>}
+                                    {submitted && emailError && <ErrorMsg id="email-error">{emailError}</ErrorMsg>}
                                 </div>
                                 <div className="mt-4">
                                     <label className="sr-only" htmlFor="password">
@@ -117,8 +122,10 @@ const LoginPage = () => {
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         onFocus={() => setPasswordError("")}
+                                        aria-invalid={!!passwordError}
+                                        aria-describedby="password-error"
                                     />
-                                    {submitted && passwordError && <span className="text-red-400 text-xs mt-1">{passwordError}</span>}
+                                    {submitted && passwordError && <ErrorMsg id="password-error">{passwordError}</ErrorMsg>}
                                 </div>
                             </div>
                             <div className="flex items-center justify-between mt-4">
@@ -129,7 +136,8 @@ const LoginPage = () => {
                                         name="remember-me"
                                         id="remember-me"
                                         checked={remember}
-                                        onChange={(e) => setRemenber(e.target.checked)}
+                                        onChange={(e) => setRemember(e.target.checked)}
+                                        aria-checked={remember}
                                     />
                                     <label
                                         className="ml-2 block text-sm text-gray-400"
