@@ -1,0 +1,15 @@
+2025-10-06 19:29:01,336 [INFO] Iniciando scraper Workana (headless=True)
+2025-10-06 19:29:01,337 [INFO] ====== WebDriver manager ======
+2025-10-06 19:29:03,031 [INFO] Get LATEST chromedriver version for google-chrome
+2025-10-06 19:29:03,585 [INFO] Get LATEST chromedriver version for google-chrome
+2025-10-06 19:29:03,983 [INFO] There is no [win64] chromedriver "141.0.7390.54" for browser google-chrome "141.0.7390" in cache
+2025-10-06 19:29:03,983 [INFO] Get LATEST chromedriver version for google-chrome
+2025-10-06 19:29:04,903 [INFO] WebDriver version 141.0.7390.54 selected
+2025-10-06 19:29:04,911 [INFO] Modern chrome version https://storage.googleapis.com/chrome-for-testing-public/141.0.7390.54/win32/chromedriver-win32.zip
+2025-10-06 19:29:04,913 [INFO] About to download new driver from https://storage.googleapis.com/chrome-for-testing-public/141.0.7390.54/win32/chromedriver-win32.zip
+2025-10-06 19:29:05,359 [INFO] Driver downloading response is 200
+2025-10-06 19:29:05,962 [INFO] Get LATEST chromedriver version for google-chrome
+2025-10-06 19:29:06,512 [INFO] Driver has been saved in cache [C:\Users\betoa\.wdm\drivers\chromedriver\win64\141.0.7390.54]
+2025-10-06 19:29:13,707 [INFO] Encontrados 5 cards (visíveis) na listagem.
+2025-10-06 19:29:14,381 [INFO] [COTAÇÃO] AwesomeAPI: 1 USD = 5.3108 BRL
+2025-10-06 19:29:26,510 [INFO] ✅ Capturados 5 projetos. Salvo em 'projetos_workana.csv'
