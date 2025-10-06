@@ -1,29 +1,58 @@
-# main_clean.py
-import time
+#!/usr/bin/env python3
+"""
+Workly - Scraper híbrido (Selenium) para Workana (categoria TI/Programação)
+
+Usage:
+    # modo padrão: busca todas as vagas de TI/Programação
+    python main_hybrid.py
+
+    # busca apenas vagas relacionadas a uma ou mais linguagens (case-insensitive)
+    python main_hybrid.py --linguagem java
+    python main_hybrid.py --linguagem java python
+
+Observações:
+- Rodar dentro do venv Python (ex: venv) com dependências:
+    pip install selenium webdriver-manager requests
+
+- O script roda em headless por padrão (conforme solicitado).
+- O CSV gerado por padrão: projetos_workana.csv
+"""
+
+import argparse
 import csv
-import re
 import logging
+import re
+import time
 from datetime import datetime
+from typing import List, Tuple
+
 import requests
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.by import By
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import (
-    TimeoutException, StaleElementReferenceException,
-    NoSuchElementException, WebDriverException
+    NoSuchElementException, TimeoutException, WebDriverException
 )
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from webdriver_manager.chrome import ChromeDriverManager
 
-# ====== Configurações ======
-URL = "https://www.workana.com/jobs?category=it-programming&language=pt&publication=1d&query=java"
-MAX_SCROLL_ATTEMPTS = 15          # limite para rolar até o fim
-USE_HEADLESS = True               # roda sempre em segundo plano (conforme solicitado)
-DEFAULT_USD_TO_BRL = 5.60         # fallback se APIs de câmbio falharem
+# ====== Configuração base ======
+URL_TEMPLATE = "https://www.workana.com/jobs?category=it-programming&language=pt&publication=1d&query={query}"
+# Por compatibilidade com a versão antiga: se preferir buscar sem query, use:
+URL_ALL_TI = "https://www.workana.com/jobs?category=it-programming&language=pt&publication=1d"
 CSV_FILENAME = "projetos_workana.csv"
 LOG_FILE = "scraper.log"
+ERROR_LOG = "scraper_errors.log"
+DEFAULT_USD_TO_BRL = 5.60
+
+# Config padrão (pode ser alterado por flags)
+DEFAULT_MAX_SCROLL_ATTEMPTS = 15
+DEFAULT_HEADLESS = True
+DEFAULT_WAIT_SHORT = 2  # espera curta em segundos
+DEFAULT_WAIT_MED = 4
+DEFAULT_WAIT_LONG = 8
+
 
 # ====== Logging ======
 logging.basicConfig(
@@ -34,50 +63,50 @@ logging.basicConfig(
         logging.StreamHandler()
     ]
 )
-logger = logging.getLogger("workana-scraper")
+logger = logging.getLogger("workly-scraper")
 
 
 # ====== Helpers ======
-def setup_driver(headless=True):
+def setup_driver(headless: bool = True):
     options = webdriver.ChromeOptions()
     if headless:
         # headless novo (Chrome 109+)
         options.add_argument("--headless=new")
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
-    # reduz logs desnecessários
     options.add_argument("--disable-gpu")
     options.add_argument("--log-level=3")
     service = Service(ChromeDriverManager().install())
-    return webdriver.Chrome(service=service, options=options)
+    driver = webdriver.Chrome(service=service, options=options)
+    return driver
 
 
-def get_usd_brl_rate():
+def get_usd_brl_rate(timeout: int = 6) -> float:
     """Tenta AwesomeAPI -> Frankfurter -> fallback"""
     try:
-        r = requests.get("https://economia.awesomeapi.com.br/json/last/USD-BRL", timeout=6)
+        r = requests.get("https://economia.awesomeapi.com.br/json/last/USD-BRL", timeout=timeout)
         data = r.json()
         rate = float(data["USDBRL"]["bid"])
         logger.info(f"[COTAÇÃO] AwesomeAPI: 1 USD = {rate} BRL")
         return rate
     except Exception:
-        logger.warning("⚠️ AwesomeAPI falhou; tentando Frankfurter...")
+        logger.debug("AwesomeAPI falhou; tentando Frankfurter...")
 
     try:
-        r = requests.get("https://api.frankfurter.app/latest?from=USD&to=BRL", timeout=6)
+        r = requests.get("https://api.frankfurter.app/latest?from=USD&to=BRL", timeout=timeout)
         data = r.json()
         rate = float(data["rates"]["BRL"])
         logger.info(f"[COTAÇÃO] Frankfurter: 1 USD = {rate} BRL")
         return rate
     except Exception:
-        logger.warning("⚠️ Frankfurter falhou; usando fallback.")
+        logger.warning("APIs de câmbio falharam; usando fallback.")
 
     logger.info(f"[COTAÇÃO] Usando fallback fixo: 1 USD = {DEFAULT_USD_TO_BRL} BRL")
     return DEFAULT_USD_TO_BRL
 
 
-def safe_find_text(el, selectors):
-    """Tenta uma lista de seletores CSS dentro do elemento el e retorna o texto do primeiro que existir."""
+def safe_find_text(el, selectors: List[str]) -> str:
+    """Tenta sequencialmente uma lista de seletores CSS retornando o primeiro texto válido."""
     for sel in selectors:
         try:
             items = el.find_elements(By.CSS_SELECTOR, sel)
@@ -91,7 +120,7 @@ def safe_find_text(el, selectors):
 
 
 def tratar_orcamento(orcamento_texto: str):
-    """Extrai moeda, mínimo, máximo e texto normalizado a partir de um texto de orçamento."""
+    """Extrai moeda, mínimo e máximo de um texto de orçamento."""
     if not orcamento_texto:
         return "DESCONHECIDO", None, None, ""
 
@@ -109,7 +138,10 @@ def tratar_orcamento(orcamento_texto: str):
 
     valores = re.sub(r"(US\$|USD|R\$|BRL)", "", texto).strip()
     numeros = re.findall(r"[\d\.,]+", valores)
-    numeros = [float(n.replace(".", "").replace(",", ".")) for n in numeros]
+    try:
+        numeros = [float(n.replace(".", "").replace(",", ".")) for n in numeros]
+    except Exception:
+        numeros = []
 
     minimo = maximo = None
     if len(numeros) == 1:
@@ -120,8 +152,8 @@ def tratar_orcamento(orcamento_texto: str):
     return moeda, minimo, maximo, texto
 
 
-def open_link_in_new_tab_and_get_budget(driver, link, wait_seconds=3):
-    """Abre link em nova aba, tenta extrair o orçamento exibido na página de detalhe e fecha a aba."""
+def open_link_in_new_tab_and_get_budget(driver, link: str, wait_seconds=3) -> str:
+    """Abre o link em nova aba, tenta extrair orçamento e fecha a aba."""
     if not link:
         return ""
     if link.startswith("/"):
@@ -165,19 +197,18 @@ def open_link_in_new_tab_and_get_budget(driver, link, wait_seconds=3):
         driver.switch_to.window(driver.window_handles[0])
 
 
-def get_full_description_and_skills(driver, card, link):
+def get_full_description_and_skills(driver, card, link: str) -> Tuple[str, str]:
     """
-    Retorna (descricao, habilidades).
-    1) Tenta expandir "Ver mais" no próprio card (com clique e espera)
-    2) Se não der certo, abre a página de detalhe e extrai descrição e habilidades.
+    Tenta expandir 'Ver mais' no card e retornar (descricao, habilidades).
+    Se não obtiver a descrição/habilidades completas, abre o detalhe da vaga.
     """
     descricao = ""
     habilidades = ""
 
-    # Captura descrição curta inicialmente
+    # Captura descrição curta
     initial_desc = safe_find_text(card, ["div.html-desc.project-details p", "div.project-details p", ".project-body p", "p"])
 
-    # Tenta encontrar e clicar em "Ver mais" dentro do card
+    # Tenta clicar "Ver mais" dentro do card
     try:
         ver_link = None
         for sel in ["a.link.small", "a.link.link-small", "a.link"]:
@@ -203,13 +234,12 @@ def get_full_description_and_skills(driver, card, link):
                 except Exception:
                     pass
 
-            # espera breve para garantir re-render
+            # espera curto pela presença de spans (texto expandido)
             try:
-                WebDriverWait(driver, 3).until(
+                WebDriverWait(driver, DEFAULT_WAIT_SHORT).until(
                     lambda d: len(card.find_elements(By.CSS_SELECTOR, "div.html-desc.project-details p span")) > 0
                 )
             except TimeoutException:
-                # não expandiu visivelmente, segue para fallback
                 pass
 
             spans = card.find_elements(By.CSS_SELECTOR, "div.html-desc.project-details p span")
@@ -217,17 +247,15 @@ def get_full_description_and_skills(driver, card, link):
                 descricao = " ".join([s.text.strip() for s in spans if s.text.strip()])
 
     except Exception:
-        # falha ao tentar expandir no card: segue adiante
-        pass
+        # não fatal, vamos seguir para fallback
+        logger.debug("Não foi possível expandir via card (seguindo para fallback se necessário).")
 
-    # se não conseguiu a descrição expandida, pega a curta
     if not descricao:
         descricao = safe_find_text(card, ["div.html-desc.project-details p", "div.project-details p", ".project-body p", "p"])
 
-    # tenta obter habilidades na listagem
     habilidades = safe_find_text(card, ["div.skills", "div.skills a.skill h3", ".skills", ".tags"])
 
-    # Verifica se precisa abrir página de detalhe
+    # decide se precisa abrir a página de detalhe
     need_detail = False
     if not descricao or "ver mais" in descricao.lower() or len(descricao) < 80:
         need_detail = True
@@ -235,7 +263,6 @@ def get_full_description_and_skills(driver, card, link):
         need_detail = True
 
     if need_detail and link:
-        # abre detalhe em nova aba
         if link.startswith("/"):
             link = "https://www.workana.com" + link
         driver.execute_script("window.open('');")
@@ -243,7 +270,7 @@ def get_full_description_and_skills(driver, card, link):
         try:
             driver.get(link)
             try:
-                WebDriverWait(driver, 6).until(
+                WebDriverWait(driver, DEFAULT_WAIT_LONG).until(
                     lambda d: d.find_elements(By.CSS_SELECTOR, "div.html-desc, section.project-description, div.project-details")
                 )
             except TimeoutException:
@@ -287,7 +314,8 @@ def get_full_description_and_skills(driver, card, link):
                         break
                 except Exception:
                     continue
-
+        except Exception as e:
+            logger.debug("Falha ao abrir detalhe da vaga: %s", e)
         finally:
             driver.close()
             driver.switch_to.window(driver.window_handles[0])
@@ -295,8 +323,8 @@ def get_full_description_and_skills(driver, card, link):
     return (descricao or "").strip(), (habilidades or "").strip()
 
 
-def scroll_until_end(driver, max_attempts=MAX_SCROLL_ATTEMPTS, pause=2.5):
-    """Rola a página até não carregar mais conteúdo ou até atingir max_attempts."""
+def scroll_until_end(driver, max_attempts: int = DEFAULT_MAX_SCROLL_ATTEMPTS, pause: float = 2.5) -> bool:
+    """Rola até o fim da página, até max_attempts. Retorna True se chegou ao fim naturalmente."""
     attempts = 0
     while attempts < max_attempts:
         attempts += 1
@@ -309,33 +337,85 @@ def scroll_until_end(driver, max_attempts=MAX_SCROLL_ATTEMPTS, pause=2.5):
     return False
 
 
+def match_languages(projeto: dict, languages: List[str]) -> bool:
+    """
+    Verifica se o projeto contém qualquer uma das languages (case-insensitive)
+    nos campos título, descrição ou habilidades.
+    """
+    if not languages:
+        return True
+    text = " ".join([
+        projeto.get("Título", ""),
+        projeto.get("Descrição", ""),
+        projeto.get("Habilidades", "")
+    ]).lower()
+    for lang in languages:
+        if lang.lower() in text:
+            return True
+    return False
+
+
+def save_csv(projetos: List[dict], filename: str = CSV_FILENAME):
+    if not projetos:
+        logger.warning("Nenhum projeto para salvar.")
+        return
+    fieldnames = list(projetos[0].keys())
+    with open(filename, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(projetos)
+    logger.info("CSV salvo: %s (registros: %d)", filename, len(projetos))
+
+
+# ====== Main ======
 def main():
+    parser = argparse.ArgumentParser(description="Workly - Scraper híbrido Workana (TI/Programação)")
+    parser.add_argument("--linguagem", "-l", nargs="+", help="Linguagem(s) para filtrar (ex: java python). Se omitido, busca todas as vagas de TI.")
+    parser.add_argument("--max-scroll", type=int, default=DEFAULT_MAX_SCROLL_ATTEMPTS, help="Máximo de tentativas de scroll para carregar a lista.")
+    parser.add_argument("--out", type=str, default=CSV_FILENAME, help="Arquivo CSV de saída")
+    args = parser.parse_args()
+
+    languages = args.linguagem or []
+    max_scrolls = args.max_scroll
+    out_file = args.out
+
+    logger.info("Iniciando scraper Workana (modo headless: %s).", DEFAULT_HEADLESS)
+    if languages:
+        logger.info("Modo filtrado: buscando vagas relacionadas a: %s", ", ".join(languages))
+    else:
+        logger.info("Modo padrão: coletando todas as vagas da categoria TI e Programação.")
+
     driver = None
+    projetos = []
+    usd_to_brl = get_usd_brl_rate()
+
     try:
-        logger.info("Iniciando scraper Workana (headless=%s)", USE_HEADLESS)
-        driver = setup_driver(headless=USE_HEADLESS)
-        driver.get(URL)
+        driver = setup_driver(headless=DEFAULT_HEADLESS)
+        # Seleciona a URL: se houver languages, usa query para tentar priorizar resultados (opcional)
+        if languages:
+            # faz query com as primeiras languages concatenadas (para priorizar)
+            q = "+".join(languages)
+            url = URL_TEMPLATE.format(query=q)
+        else:
+            url = URL_ALL_TI
 
-        # aguarda página inicial carregar (um timeout curto)
+        driver.get(url)
         try:
-            WebDriverWait(driver, 6).until(lambda d: d.find_elements(By.CSS_SELECTOR, "div.project-item"))
+            WebDriverWait(driver, DEFAULT_WAIT_MED).until(lambda d: d.find_elements(By.CSS_SELECTOR, "div.project-item"))
         except TimeoutException:
-            logger.warning("Timeout ao esperar por cards na listagem. Continuando...")
+            logger.warning("Timeout aguardando cards; continuando mesmo assim.")
 
-        # rolar até o fim (com limite)
-        scrolled = scroll_until_end(driver)
+        # scroll até o fim (limitado)
+        scrolled = scroll_until_end(driver, max_attempts=max_scrolls)
         if not scrolled:
-            logger.info("Scroll atingiu limite de tentativas (limitado por MAX_SCROLL_ATTEMPTS).")
+            logger.info("Scroll atingiu limite de tentativas (MAX=%d).", max_scrolls)
 
         cards = driver.find_elements(By.CSS_SELECTOR, "div.project-item")
-        logger.info("Encontrados %d cards (visíveis) na listagem.", len(cards))
-
-        usd_to_brl = get_usd_brl_rate()
-        projetos = []
+        logger.info("Cards visíveis encontrados: %d", len(cards))
 
         for idx, card in enumerate(cards, start=1):
             try:
-                # título + link (fallbacks)
+                # título + link
                 titulo = ""
                 link_elem = None
                 for sel in ["h2.project-title a", "h2.h3.project-title a", "h2 a"]:
@@ -353,7 +433,7 @@ def main():
                 # descrição + habilidades
                 descricao, habilidades = get_full_description_and_skills(driver, card, link)
 
-                # orçamento e conversão
+                # orçamento
                 orcamento_texto = safe_find_text(card, ["h4.budget span.values span", "h4.budget .values span", "h4.budget", ".budget"])
                 moeda, minimo, maximo, _ = tratar_orcamento(orcamento_texto)
 
@@ -392,7 +472,6 @@ def main():
                 elif moeda == "BRL":
                     minimo_brl, maximo_brl = minimo, maximo
                     metodo = "listagem_BRL"
-
                 else:
                     if link:
                         try:
@@ -409,7 +488,7 @@ def main():
 
                 propostas = safe_find_text(card, ["div.project-main-details span.bids", "span.bids", ".bids"])
 
-                projetos.append({
+                projeto = {
                     "Título": titulo,
                     "Link": link,
                     "Descrição": descricao,
@@ -419,31 +498,49 @@ def main():
                     "Máximo (BRL)": maximo_brl,
                     "Propostas": propostas,
                     "Metodo": metodo
-                })
+                }
+
+                projetos.append(projeto)
+
             except Exception as e:
+                # registra erro mas continua
+                with open(ERROR_LOG, "a", encoding="utf-8") as fe:
+                    fe.write(f"{datetime.utcnow().isoformat()} ERROR processing card index={idx}: {repr(e)}\n")
                 logger.exception("Erro ao processar card index=%s: %s", idx, e)
                 continue
 
-        # finaliza o driver
-        driver.quit()
+        # fecha driver
+        try:
+            driver.quit()
+        except Exception:
+            pass
         driver = None
 
-        # salvar CSV (se houver projetos)
-        if projetos:
-            fieldnames = list(projetos[0].keys())
-            # salva com nome fixo por enquanto (pode parametrizar futuramente)
-            with open(CSV_FILENAME, "w", newline="", encoding="utf-8") as f:
-                writer = csv.DictWriter(f, fieldnames=fieldnames)
-                writer.writeheader()
-                writer.writerows(projetos)
-            logger.info("✅ Capturados %d projetos. Salvo em '%s'", len(projetos), CSV_FILENAME)
-        else:
-            logger.warning("Nenhum projeto capturado.")
+        # Filtra por linguagens se fornecidas (opção híbrida)
+        if languages:
+            filtered = [p for p in projetos if match_languages(p, languages)]
+            logger.info("Filtragem por linguagem(s) resultou em %d projetos (de %d coletados).", len(filtered), len(projetos))
+            projetos = filtered
+
+        # remove duplicatas por Link (mantém o primeiro)
+        seen = set()
+        dedup = []
+        for p in projetos:
+            link = p.get("Link") or ""
+            if link not in seen:
+                seen.add(link)
+                dedup.append(p)
+        projetos = dedup
+
+        # salva CSV
+        save_csv(projetos, out_file)
+
+        logger.info("Execução finalizada. Projetos capturados: %d", len(projetos))
 
     except WebDriverException as e:
         logger.exception("Erro com o WebDriver: %s", e)
     except Exception as e:
-        logger.exception("Erro inesperado durante execução: %s", e)
+        logger.exception("Erro inesperado: %s", e)
     finally:
         if driver:
             try:
