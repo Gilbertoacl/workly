@@ -16,10 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/Auth")
@@ -70,5 +67,10 @@ public class AuthController {
                     return  ResponseEntity.ok(new ResponseDTO(newAccessToken, refreshToken));
                 })
                 .orElseThrow(() -> new RuntimeException("Refresh Token Inválido"));
+    }
+
+    @GetMapping("/private")
+    public ResponseEntity<String> privateEndpoint() {
+        return ResponseEntity.ok("Acesso autorizado");
     }
 }

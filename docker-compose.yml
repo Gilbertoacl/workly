@@ -1,0 +1,53 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: workly-db
+    restart: always
+    environment:
+      POSTGRES_DB: workly
+      POSTGRES_USER: workly
+      POSTGRES_PASSWORD: workly
+    ports:
+      - "5432:5432"
+    networks:
+      - workly-net
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./backend
+    container_name: workly-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      # Variáveis para a conexão com o banco de dados
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/workly
+      - SPRING_DATASOURCE_USERNAME=workly
+      - SPRING_DATASOURCE_PASSWORD=workly
+      # Outras variáveis de ambiente do seu backend
+      - API_SECURITY_TOKEN_SECRET=my-secret-key-from-project
+    depends_on:
+      - db
+    networks:
+      - workly-net
+
+  frontend:
+    build:
+      context: ./workly-fed
+    container_name: workly-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - workly-net
+
+networks:
+  workly-net:
+    driver: bridge
+
+volumes:
+  db_data:
