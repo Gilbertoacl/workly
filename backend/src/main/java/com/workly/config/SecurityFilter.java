@@ -1,7 +1,7 @@
 package com.workly.config;
 
-import com.workly.service.TokenService;
 import com.workly.repository.UserRepository;
+import com.workly.service.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -37,6 +37,7 @@ public class SecurityFilter extends OncePerRequestFilter {
             var autentication = new UsernamePasswordAuthenticationToken(user, null, authorities);
             SecurityContextHolder.getContext().setAuthentication(autentication);
         }
+
         filterChain.doFilter(request, response);
     }
 
