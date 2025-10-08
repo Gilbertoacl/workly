@@ -1,0 +1,6 @@
+*.csv
+*.log
+.env
+*.txt
+
+dbTest.py
