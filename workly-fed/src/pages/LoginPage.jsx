@@ -1,4 +1,5 @@
 import { useState } from "react";
+import useAuth from "../hooks/useAuth";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { useNavigate, Link } from "react-router-dom";
 
@@ -14,6 +15,7 @@ export default function LoginPage() {
     const [submitted, setSubmitted] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
+    const { login } = useAuth();
 
     function validateEmail(email) {
         const emailRegex = /^[\w-.]+@[\w-]+\.[a-zA-Z]{2,}$/;
@@ -23,38 +25,41 @@ export default function LoginPage() {
         return password.length >= 8;
     }
 
-    const handleSubmit = (ev) => {
+    const handleSubmit = async (ev) => {
         ev.preventDefault();
         setSubmitted(true);
         setLoginError("");
         let valid = true;
+
         if (!validateEmail(email)) {
             setEmailError("Digite um e-mail válido.");
             valid = false;
         } else {
             setEmailError("");
         }
+
         if (!validatePassword(password)) {
             setPasswordError("A senha deve ter pelo menos 8 caracteres.");
             valid = false;
         } else {
             setPasswordError("");
         }
+
         if (!valid) return;
+
         setLoading(true);
-        setTimeout(() => {
-            setLoading(false);
-            if (email !== "admin@email.com" || password !== "12345678") {
-                setLoginError("Usuário ou senha inválidos.");
-                return;
-            }
-            if (remember) {
-                localStorage.setItem("rememberedAccount", JSON.stringify({ email, password, remember: true }));
-            } else {
-                localStorage.removeItem("rememberedAccount");
-            }
+
+        try {
+            await login(email, password);
+
+            (remember) ? localStorage.setItem("rememberedAccount", JSON.stringify({ email, password, remember: true })) : localStorage.removeItem("rememberedAccount");
+           
             navigate("/home");
-        }, 1200);
+        } catch (error) {
+            setLoginError(error.message); 
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -78,6 +83,12 @@ export default function LoginPage() {
                             {loginError && (
                                 <div className="bg-red-500/10 border border-red-500 text-red-400 rounded p-2 text-sm mb-2 text-center" role="alert" aria-live="assertive">
                                     {loginError}
+                                    {loginError.includes("Usuário ou Senha inválidos.") && (
+                                        <div className="mt-2">
+                                            <Link to="/register" className="text-indigo-400 underline">Criar nova conta</Link> ou
+                                            <Link to="/forgot-password" className="text-indigo-400 underline ml-1">Recuperar senha</Link>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                             <div className="rounded-md space-y-4">
