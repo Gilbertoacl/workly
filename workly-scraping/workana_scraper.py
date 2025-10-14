@@ -412,12 +412,13 @@ def save_to_db(conn, projetos: List[dict]):
             normalize_value(p.get("Máximo (BRL)"), "float"),
             normalize_value(p.get("Propostas"), "int"),
             normalize_value(p.get("Metodo"), "str"),
+            datetime.utcnow(),
         ))
 
     sql = """
     INSERT INTO scraped_jobs
     (source, title, link, link_hash, description, skills, original_budget,
-     min_budget, max_budget, proposals, conversion_method)
+     min_budget, max_budget, proposals, conversion_method, scraped_at)
     VALUES %s
     ON CONFLICT (link_hash) DO UPDATE
       SET title = EXCLUDED.title,
