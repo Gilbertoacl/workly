@@ -4,6 +4,7 @@ import MainPage from "./pages/MainPage";
 import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import RegisterPage from './pages/RegisterPage'
 import ProtectedRoute from "./common/security/ProtectedRoute";
+import JobsPage from "./pages/JobsPage";
 
 function App() {
   return (
@@ -20,9 +21,9 @@ function App() {
             <MainPage />
           </ProtectedRoute>
         } 
-      /> 
-
-
+      > 
+        <Route index element={<JobsPage />} />
+      </Route>
     </Routes>
   );
 }
