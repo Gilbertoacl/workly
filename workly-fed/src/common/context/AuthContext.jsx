@@ -3,7 +3,7 @@ import authService from "../../features/authentication/authService";
 
 export const AuthContext = createContext(null);
 
-export const AuthProvider = ({ children }) => {
+export function AuthProvider ({ children }){
     const [authTokens, setAuthTokens] = useState(() => {
         const stored = localStorage.getItem("authTokens");
         return stored ? JSON.parse(stored) : null;
