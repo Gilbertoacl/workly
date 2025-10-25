@@ -3,6 +3,7 @@ import api from "../lib/api";
 import JobCard from "./JobCard";
 import { FaArrowLeft, FaArrowRight, FaRegSadTear } from "react-icons/fa";
 import JobCardSkeleton from "./JobCardSkeleton";
+import JobModal from "./JobModal";
 
 export default function JobList() {
   const [jobs, setJobs] = useState([]);
@@ -10,6 +11,7 @@ export default function JobList() {
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [fade, setFade] = useState(true);
+  const [selectedJob, setSelectedJob] = useState(null);
 
   useEffect(() => {
     setFade(false);
@@ -63,8 +65,20 @@ export default function JobList() {
         }`}
       >
         {jobs.map((job) => (
-          <JobCard key={job.linkHash} job={job} />
+          <JobCard
+            key={job.linkHash}
+            job={job}
+            onClick={() => setSelectedJob(job)}
+            isSelected={selectedJob?.linkHash === job.linkHash}
+          />
         ))}
+
+        {selectedJob && (
+          <JobModal
+            job={selectedJob}
+            onClose={() => setSelectedJob(null)}
+          />
+        )}
       </div>
       <div className="flex justify-center gap-2 mb-4">
         <button

@@ -1,12 +1,9 @@
 import { useState } from "react";
 import LogoWorkana from "../assets/images/workana_icone.jpg";
 
-export default function JobCard({ job }) {
+export default function JobCard({ job, onClick, isSelected }) {
   const skills = job.skills ? job.skills.split(" | ") : [];
-  const [expanded, setExpanded] = useState(false);
   const maxLength = 300;
-
-  const handleExpand = () => setExpanded(true);
 
   const formatDate = (date) => {
     if (!date) return "";
@@ -29,7 +26,12 @@ export default function JobCard({ job }) {
   };
 
   return (
-    <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden mx-auto my-2">
+    <div
+      onClick={onClick}
+      className={`cursor-pointer w-full max-w-md bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden mx-auto my-2
+        border-2 transition-all duration-200
+        ${isSelected ? "border-blue-500 shadow-lg" : "border-transparent hover:border-blue-500"}`}
+    >
       <div className="flex justify-between items-center px-6 py-4">
         <div className="flex flex-row items-center space-x-4 w-full">
           {/* Logo */}
@@ -68,31 +70,7 @@ export default function JobCard({ job }) {
 
       <div className="px-4 py-1">
         <div className="text-sm text-gray-800 dark:text-gray-200">
-          {expanded
-            ? job.description
-            : truncateText(job.description, maxLength)}
-          {!expanded &&
-            job.description &&
-            job.description.length > maxLength && (
-              <button
-                onClick={handleExpand}
-                className="text-blue-500 hover:underline ml-2"
-                aria-label="Expandir descrição completa"
-              >
-                ...ver mais
-              </button>
-            )}
-          {expanded &&
-            job.description &&
-            job.description.length > maxLength && (
-              <button
-                onClick={() => setExpanded(false)}
-                className="text-blue-500 hover:underline ml-2"
-                aria-label="Recolher descrição"
-              >
-                ...ver menos
-              </button>
-            )}
+          {truncateText(job.description, maxLength)}
         </div>
       </div>
       <div className="flex justify-between items-center space-x-4 pt-4 border-t border-gray-200 dark:border-gray-700 p-4">
