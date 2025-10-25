@@ -22,7 +22,7 @@ public class ScrapedJobController {
     }
 
     @GetMapping("/jobs")
-    public ResponseEntity<Page<JobResponseDTO>> listJobs(@PageableDefault(size = 10) Pageable pageable) {
+    public ResponseEntity<Page<JobResponseDTO>> listJobs(@PageableDefault(size = 12) Pageable pageable) {
         return ResponseEntity.ok(service.findAllJobs(pageable));
     }
 }
