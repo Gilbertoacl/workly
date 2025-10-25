@@ -25,6 +25,18 @@ export default function JobCard({ job, onClick, isSelected }) {
     return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
   };
 
+  const badgeColors = [
+    "bg-blue-200 text-blue-800",
+    "bg-green-200 text-green-800",
+    "bg-yellow-200 text-yellow-800",
+    "bg-purple-200 text-purple-800",
+    "bg-pink-200 text-pink-800",
+    "bg-red-200 text-red-800",
+    "bg-indigo-200 text-indigo-800",
+    "bg-teal-200 text-teal-800",
+    "bg-orange-200 text-orange-800",
+  ];
+
   return (
     <div
       onClick={onClick}
@@ -80,7 +92,9 @@ export default function JobCard({ job, onClick, isSelected }) {
               skill === "+" ? null : (
                 <span
                   key={index}
-                  className="bg-gray-200 dark:bg-gray-700 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 dark:text-gray-300 whitespace-nowrap"
+                  className={`rounded-full px-3 py-1 text-sm font-semibold whitespace-nowrap ${
+                    badgeColors[index % badgeColors.length]
+                  }`}
                 >
                   {skill}
                 </span>
