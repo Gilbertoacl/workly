@@ -1,4 +1,4 @@
-package com.workly.dto;
+package com.workly.dto.user;
 
 import com.workly.entity.ContractStatus;
 
