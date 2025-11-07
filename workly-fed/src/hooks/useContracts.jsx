@@ -1,7 +1,7 @@
-import { useEffect } from "react";
-import { addUserContract } from "../features/contracts/contractService";
+import { useEffect,useState } from "react";
+import { addUserContract, getUserContracts, updateUserContractStatus } from "../features/contracts/contractService";
 
-export const userContracts = () => {
+export default function useContracts(){
     const [contracts, setContracts] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
