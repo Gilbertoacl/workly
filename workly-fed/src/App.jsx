@@ -6,6 +6,7 @@ import RegisterPage from './pages/RegisterPage'
 import ProtectedRoute from "./common/security/ProtectedRoute";
 import JobsPage from "./pages/JobsPage";
 import UserContractsPage from "./pages/UserContractsPage";
+import ReportsPage from "./pages/ReportsPage";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
       > 
         <Route index element={<JobsPage />} />
         <Route path="contracts" element={<UserContractsPage />} />
+        <Route path="reports" element={<ReportsPage />} />
       </Route>
     </Routes>
   );
