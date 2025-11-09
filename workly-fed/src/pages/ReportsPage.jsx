@@ -10,6 +10,7 @@ import { BarChart } from "@/components/Charts/BeChart";
 import { PieChart } from "@/components/Charts/PieChart";
 import { Loader2 } from "lucide-react";
 import { formatCurrencyBRL } from "@/common/utils/UtilsGlobal";
+import CountUp from "react-countup";
 
 export default function ReportsPage() {
   const [financial, setFinancial] = useState(null);
@@ -25,8 +26,6 @@ export default function ReportsPage() {
           api.get("/api/reports/summary"),
           api.get("/api/reports/languages"),
         ]);
-
-        console.log("FINANCIAL RES:", financialRes.data);
         setFinancial(financialRes.data);
         setContracts(contractsRes.data);
         setLanguages(languagesRes.data);
@@ -50,44 +49,60 @@ export default function ReportsPage() {
   return (
     <div className="p-6 space-y-8">
       <div className="flex gap-20">
-        {/* Resumo Financeiro */}
         <section className="w-80">
           <h2 className="text-2xl font-bold mb-4">Resumo Financeiro</h2>
           <div className="grid grid-cols-1  gap-4">
             <Card>
               <CardHeader>
-                <CardTitle>Total Mínimo</CardTitle>
+                <CardTitle>Ganho Mínimo</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-lg font-semibold text-green-600">
-                  {formatCurrencyBRL(financial?.totalMinBudget)}
+                  R$
+                  <CountUp
+                    end={financial?.totalMinBudget || 0}
+                    duration={1.8}
+                    decimals={2}
+                  />
                 </p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader>
-                <CardTitle>Total Máximo</CardTitle>
+                <CardTitle>Ganho Máximo</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-lg font-semibold text-green-600">
-                  {formatCurrencyBRL(financial?.totalMaxBudget)}
+                  R$
+                  <CountUp
+                    end={financial?.totalMaxBudget || 0}
+                    duration={1.8}
+                    decimals={2}
+                  />
                 </p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader>
-                <CardTitle>Valor Médio</CardTitle>
+                <CardTitle>Ganho Médio</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-lg font-semibold text-green-600">
-                  {formatCurrencyBRL((financial?.totalMaxBudget + financial?.totalMinBudget) / 2)}
+                  R$
+                  <CountUp
+                    end={
+                      (financial?.totalMaxBudget + financial?.totalMinBudget) /
+                        2 || 0
+                    }
+                    duration={1.8}
+                    decimals={2}
+                  />
                 </p>
               </CardContent>
             </Card>
           </div>
         </section>
 
-        {/* Contratos por Status */}
         <section>
           <h2 className="text-2xl font-bold mb-4">Status dos Contratos</h2>
           <PieChart
@@ -99,7 +114,6 @@ export default function ReportsPage() {
         </section>
       </div>
 
-      {/* Linguagens mais usadas */}
       <section>
         <h2 className="text-2xl font-bold mb-4">Linguagens Mais Usadas</h2>
         <BarChart
