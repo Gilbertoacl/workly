@@ -24,7 +24,7 @@ export function BarChart({ data }) {
           <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
           <XAxis
             dataKey="name"
-            tick={{ fontSize: 12, fill: "#334155", fontWeight: 600 }}
+            tick={{ fontSize: 10, fill: "#f1f5f9", fontWeight: 400 }}
           />
           <YAxis tick={{ fontSize: 12, fill: "#64748b" }} />
           <Tooltip
