@@ -12,7 +12,7 @@ const navItems = [
   { icon: <FaSearch />, label: "Buscar", path: "/home/search" },
   { icon: <FaDollarSign />, label: "Meus Contratos", path: "/home/contracts" },
   { icon: <FaFileExcel />, label: "Relatórios", path: "/home/reports" },
-  { icon: <FaGear />, label: "Configurações", path: "/home/settings" },
+  // { icon: <FaGear />, label: "Configurações", path: "/home/settings" },
 ];
 
 export default function Sidebar({ collapsed }) {

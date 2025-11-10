@@ -130,3 +130,9 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+@font-face {
+  font-family: 'Jua';
+  src: url('/src/assets/fonts/Jua-Regular.ttf') format('truetype');
+  font-weight: 400;
+}
