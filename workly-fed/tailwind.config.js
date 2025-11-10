@@ -71,6 +71,10 @@ export default {
       },
     },
 
+    fontFamily: {
+      JuaRegular: ['Jua', 'sans-serif'],
+    },
+
     screens: {
       sm: '481px',
       md: '769px',
