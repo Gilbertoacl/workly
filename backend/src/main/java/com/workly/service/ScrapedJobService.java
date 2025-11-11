@@ -1,10 +1,14 @@
 package com.workly.service;
 
 import com.workly.dto.scrapedjob.JobResponseDTO;
+import com.workly.entity.ScrapedJob;
 import com.workly.repository.ScrapedJobRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class ScrapedJobService {
@@ -27,5 +31,15 @@ public class ScrapedJobService {
                         job.getMaxBudget(),
                         job.getScraped_at()
                 ));
+    }
+
+    public List<ScrapedJob> searchJobsByKeyword(String keyword, String type) {
+        if (type.equalsIgnoreCase("title")) {
+            return repository.searchJobByKeyword(keyword);
+        } else if (type.equalsIgnoreCase("skills")) {
+            return repository.searchJobBySkill(keyword);
+        } else {
+            throw new IllegalArgumentException("Tipo de busca inválido: " + type);
+        }
     }
 }
