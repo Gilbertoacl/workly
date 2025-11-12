@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import org.springframework.web.bind.annotation.PostMapping;
+
 
 
 @RestController
@@ -31,7 +33,7 @@ public class ScrapedJobController {
         return ResponseEntity.ok(service.findAllJobs(pageable));
     }
 
-    @GetMapping("/jobs/search")
+    @PostMapping("/jobs/search")    
     public ResponseEntity<List<ScrapedJob>> searchJobs(@RequestBody SearchJobsDTO request) {
         return ResponseEntity.ok(service.searchJobsByKeyword(request.keyword(), request.type()));
     }
