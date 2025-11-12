@@ -12,7 +12,7 @@ const Header = ({ onMenuClick, sidebarCollapsed }) => {
         <MenuHamburguer onClick={onMenuClick} active={!sidebarCollapsed} />
         <Link to="/home" className="font-JuaRegular text-4xl">Workly</Link>
       </div>
-      <SearchBar />
+      {/* <SearchBar /> */}
       <div className="flex justify-around w-32 items-center">
         <NotificationDropdown />
         <ProfileDropdown />
