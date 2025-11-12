@@ -7,6 +7,7 @@ import ProtectedRoute from "./common/security/ProtectedRoute";
 import JobsPage from "./pages/JobsPage";
 import UserContractsPage from "./pages/UserContractsPage";
 import ReportsPage from "./pages/ReportsPage";
+import JobsSearchPage from "./pages/JobsSearchPage";
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
         <Route index element={<JobsPage />} />
         <Route path="contracts" element={<UserContractsPage />} />
         <Route path="reports" element={<ReportsPage />} />
+        <Route path="search" element={<JobsSearchPage />} />
       </Route>
     </Routes>
   );
