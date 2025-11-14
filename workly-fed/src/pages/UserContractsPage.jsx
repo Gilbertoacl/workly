@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { FaExternalLinkAlt } from "react-icons/fa";
 import useContracts from "../hooks/useContracts";
 import api from "../lib/api";
+import SkillBadge from "@/components/SkillBadge";
+import { formatBudget, formatDate } from "@/common/utils/UtilsGlobal";
 
 export default function UserContractsPage() {
   const { contracts: hookContracts, loading, error } = useContracts();
@@ -11,24 +13,10 @@ export default function UserContractsPage() {
   const [pendingChanges, setPendingChanges] = useState({});
   const [updating, setUpdating] = useState(null);
 
-  const badgeColors = [
-    "bg-blue-200 text-blue-800",
-    "bg-green-200 text-green-800",
-    "bg-yellow-200 text-yellow-800",
-    "bg-purple-200 text-purple-800",
-    "bg-pink-200 text-pink-800",
-    "bg-red-200 text-red-800",
-    "bg-indigo-200 text-indigo-800",
-    "bg-teal-200 text-teal-800",
-    "bg-orange-200 text-orange-800",
-  ];
-
-  // Atualiza contratos locais quando hookContracts mudar
   useEffect(() => {
     setContracts(hookContracts);
   }, [hookContracts]);
 
-  // Atualiza a lista filtrada quando contratos ou filtro mudarem
   useEffect(() => {
     const filtered = contracts.filter(
       (c) => c.status.toUpperCase() === filter.toUpperCase()
@@ -51,14 +39,12 @@ export default function UserContractsPage() {
       setUpdating(linkHash);
       await api.patch("/api/users/contracts", { linkHash, newStatus });
 
-      // ✅ Atualiza o contrato no estado principal
       setContracts((prev) =>
         prev.map((c) =>
           c.link_hash === linkHash ? { ...c, status: newStatus } : c
         )
       );
 
-      // Remove o pending change
       setPendingChanges((prev) => {
         const copy = { ...prev };
         delete copy[linkHash];
@@ -70,21 +56,6 @@ export default function UserContractsPage() {
     } finally {
       setUpdating(null);
     }
-  };
-
-  const formatDate = (date) => {
-    if (!date) return "";
-    const d = new Date(date);
-    const day = String(d.getDate()).padStart(2, "0");
-    const month = String(d.getMonth() + 1).padStart(2, "0");
-    const year = d.getFullYear();
-    return `${day}/${month}/${year}`;
-  };
-
-  const formatBudget = (value) => {
-    if (value == null) return "";
-    const rounded = Math.round(value);
-    return rounded.toLocaleString("pt-BR");
   };
 
   return (
@@ -127,11 +98,7 @@ export default function UserContractsPage() {
           ) : (
             <div className="grid gap-4">
               {filteredContracts.map((contract) => {
-                const selectedStatus =
-                  pendingChanges[contract.link_hash] || contract.status;
-                const skills = contract.skills
-                  ? contract.skills.split(" | ")
-                  : [];
+                const selectedStatus = pendingChanges[contract.link_hash] || contract.status;
 
                 return (
                   <div
@@ -149,25 +116,7 @@ export default function UserContractsPage() {
                           <FaExternalLinkAlt className="inline-block ml-2 w-3" />
                         </a>
                       </h2>
-
-                      <p className="text-sm text-gray-600 mt-1">
-                        Linguagens:{" "}
-                        <span className="font-medium text-gray-800">
-                          {skills.map((skill, index) =>
-                            skill === "+" ? null : (
-                              <span
-                                key={index}
-                                className={`rounded-full px-3 py-1 text-sm font-semibold whitespace-nowrap ${
-                                  badgeColors[index % badgeColors.length]
-                                }`}
-                              >
-                                {skill}
-                              </span>
-                            )
-                          )}
-                        </span>
-                      </p>
-
+                      <SkillBadge skills={contract.skills} />
                       <p className="text-sm text-gray-600">
                         Orçamento:{" "}
                         <span className="font-medium text-gray-800">

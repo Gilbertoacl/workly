@@ -1,7 +1,6 @@
 
 
 const MenuHamburguer = ({ onClick, active }) => {
-  // active = true significa sidebar colapsada
   return (
     <button
       className="flex flex-col gap-2 w-8 focus:outline-none"

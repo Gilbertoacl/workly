@@ -76,10 +76,10 @@ export default function LoginPage() {
                         <h2 className="text-center text-3xl font-extrabold text-white">
                             Bem-vindo de volta
                         </h2>
-                        <p className="mt-4 text-center text-gray-400">
+                        <p className="mt-10 text-center text-gray-400">
                             Faça seu login
                         </p>
-                        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+                        <form className="mt-4 space-y-6" onSubmit={handleSubmit}>
                             {loginError && (
                                 <div className="bg-red-500/10 border border-red-500 text-red-400 rounded p-2 text-sm mb-2 text-center" role="alert" aria-live="assertive">
                                     {loginError}

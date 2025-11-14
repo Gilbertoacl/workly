@@ -2,21 +2,11 @@ import { useState, useEffect } from "react";
 import LogoWorkana from "../assets/images/workana_icone.jpg";
 import { FaStar, FaCheck } from "react-icons/fa";
 import { motion } from "framer-motion";
+import SkillBadge from "./SkillBadge";
 
 export default function JobModal({ job, onClose }) {
   const [isFavorited, setIsFavorited] = useState(false);
-
-  const badgeColors = [
-    "bg-blue-200 text-blue-800",
-    "bg-green-200 text-green-800",
-    "bg-yellow-200 text-yellow-800",
-    "bg-purple-200 text-purple-800",
-    "bg-pink-200 text-pink-800",
-    "bg-red-200 text-red-800",
-    "bg-indigo-200 text-indigo-800",
-    "bg-teal-200 text-teal-800",
-    "bg-orange-200 text-orange-800",
-  ];
+  const [added, setAdded] = useState(false);
 
   useEffect(() => {
     const favorites = JSON.parse(localStorage.getItem("favoriteJobs") || "[]");
@@ -46,8 +36,6 @@ export default function JobModal({ job, onClose }) {
 
     setTimeout(() => setAdded(false), 1500);
   };
-
-  const [added, setAdded] = useState(false);
 
   return (
     <div
@@ -95,33 +83,21 @@ export default function JobModal({ job, onClose }) {
           {job.maxBudget}
         </div>
         <div className="flex flex-wrap gap-2 mb-4 items-center">
-          {job.skills &&
-            job.skills.split(" | ").map((skill, index) =>
-              skill === "+" ? null : (
-                <span
-                  key={index}
-                  className={`rounded-full px-3 py-1 text-sm font-semibold whitespace-nowrap ${
-                    badgeColors[index % badgeColors.length]
-                  }`}
-                >
-                  {skill}
-                </span>
-              )
-            )}
+          <SkillBadge skills={job.skills} />
         </div>
         <div className="flex gap-2 flex-wrap">
           <a
             href={job.link}
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-blue-600 text-white px-5 py-2 rounded-full hover:bg-blue-700 transition font-semibold"
+            className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition flex items-center justify-center font-semibold"
           >
             Ver vaga
           </a>
           <button
             onClick={handleAddContract}
             disabled={added}
-            className={`bg-green-600 text-white px-5 py-2 rounded-full transition font-semibold flex items-center justify-center ${
+            className={`bg-green-600 text-white px-5 py-2 rounded-lg transition font-semibold flex items-center justify-center ${
               added ? "bg-green-700" : "hover:bg-green-700"
             }`}
           >
