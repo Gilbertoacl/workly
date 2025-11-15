@@ -12,6 +12,12 @@ import com.workly.repository.UserRepository;
 import com.workly.service.RefreshTokenService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+
+import java.net.http.HttpResponse;
+import java.util.Optional;
+
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -43,8 +49,8 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity register(@RequestBody @Valid RegisterDTO body) {
-        if (this.userRepository.findByEmail(body.email()) != null) {
-            return ResponseEntity.badRequest().build();
+        if (userRepository.findByEmail(body.email()).isPresent()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email Já Cadastrado");
         }
 
         String encryptedPassword  = new BCryptPasswordEncoder().encode(body.password());
@@ -52,7 +58,7 @@ public class AuthController {
 
         this.userRepository.save(user);
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.CREATED).body("Usuário Criado");
     }
 
     @PostMapping("/refresh")

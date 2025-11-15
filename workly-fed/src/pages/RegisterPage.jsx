@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { FiEye, FiEyeOff, FiCheckCircle } from "react-icons/fi";
+import api from "@/lib/api";
+import { HttpStatusCode } from "axios";
 
 export default function RegisterPage() {
   const [name, setName] = useState("");
@@ -28,7 +30,7 @@ export default function RegisterPage() {
     return newErrors;
   }
 
-  const handleSubmit = (ev) => {
+  const handleSubmit = async (ev) => {
     ev.preventDefault();
     setSubmitted(true);
     setServerError("");
@@ -36,15 +38,20 @@ export default function RegisterPage() {
     setErrors(validation);
     if (Object.keys(validation).length > 0) return;
     setLoading(true);
-    setTimeout(() => {
-      if (email === "jaexiste@email.com") {
-        setServerError("Este e-mail já está cadastrado.");
-        setLoading(false);
-        return;
-      }
+
+    api.post("/Auth/register", {name, email, password, role: "USER"})
+    .then(() => {
+      setTimeout(() => {
+        setSuccess(true)
+        setLoading(false)
+      }, 2000);
+    })
+    .catch((error) => {
       setLoading(false);
-      setSuccess(true);
-    }, 1200);
+      setServerError(error.response.data);
+    });
+    
+    
   };
 
   return (
