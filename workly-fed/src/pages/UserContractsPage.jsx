@@ -18,10 +18,13 @@ export default function UserContractsPage() {
   }, [hookContracts]);
 
   useEffect(() => {
-    const filtered = contracts.filter(
-      (c) => c.status.toUpperCase() === filter.toUpperCase()
-    );
-    setFilteredContracts(filtered);
+    if (contracts.length != 0) {
+      const filtered = contracts.filter(
+        (c) => c.status.toUpperCase() === filter.toUpperCase()
+      );
+      setFilteredContracts(filtered);
+    }
+    
   }, [contracts, filter]);
 
   const handleStatusSelect = (linkHash, newStatus) => {

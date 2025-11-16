@@ -3,6 +3,7 @@ import LogoWorkana from "../assets/images/workana_icone.jpg";
 import { FaStar, FaCheck } from "react-icons/fa";
 import { motion } from "framer-motion";
 import SkillBadge from "./SkillBadge";
+import api from "@/lib/api";
 
 export default function JobModal({ job, onClose }) {
   const [isFavorited, setIsFavorited] = useState(false);
@@ -31,10 +32,15 @@ export default function JobModal({ job, onClose }) {
     if (e.target === e.currentTarget) onClose();
   };
 
-  const handleAddContract = () => {
-    setAdded(true);
+  const handleAddContract = async (linkHash) => {    
+    try{
+      await api.post("/api/users/contracts", { linkHash });
+      setAdded(true);
+    } catch (error) {
+      console.log(error)
+      alert(error)
+    }
 
-    setTimeout(() => setAdded(false), 1500);
   };
 
   return (
@@ -95,7 +101,7 @@ export default function JobModal({ job, onClose }) {
             Ver vaga
           </a>
           <button
-            onClick={handleAddContract}
+            onClick={() => {handleAddContract(job.linkHash)}}
             disabled={added}
             className={`bg-green-600 text-white px-5 py-2 rounded-lg transition font-semibold flex items-center justify-center ${
               added ? "bg-green-700" : "hover:bg-green-700"
