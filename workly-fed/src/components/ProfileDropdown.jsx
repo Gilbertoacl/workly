@@ -7,11 +7,24 @@ import { Link } from "react-router-dom";
 const ProfileDropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
+ 
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
+
+  const getInitials = (nome= "") => {
+    const ignoredWords = ["da","das","de","do","dos","di","du","von","van"];
+    const filtered = nome.trim().toLowerCase().split(/\s+/).filter(word => word && !ignoredWords.includes(word))
+
+    if (!filtered.length) return "";
+
+    const first = filtered[0][0];
+    const last = filtered.length > 1 ? filtered.at(1)[0] : "";
+
+    return (first + last).toUpperCase();
+  }
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -58,7 +71,7 @@ const ProfileDropdown = () => {
         onClick={toggleDropdown}
         className="mx-5 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-text dark:bg-primary cursor-pointer"
       >
-        GA
+        {getInitials(user.nomeUsuario)}
       </span>
 
       {isOpen && (

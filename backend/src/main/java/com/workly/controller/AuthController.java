@@ -44,7 +44,7 @@ public class AuthController {
         User user = (User) auth.getPrincipal();
         var token = tokenService.generatedToken(user);
         var refreshtoken = refreshTokenService.creationRefreshToken(user.getId());
-        return ResponseEntity.ok(new ResponseDTO(token, refreshtoken.getToken()));
+        return ResponseEntity.ok(new ResponseDTO(token, refreshtoken.getToken(), user.getName()));
     }
 
     @PostMapping("/register")
@@ -70,7 +70,7 @@ public class AuthController {
                 .map(RefreshToken::getUser)
                 .map(user -> {
                     String newAccessToken = tokenService.generatedToken(user);
-                    return  ResponseEntity.ok(new ResponseDTO(newAccessToken, refreshToken));
+                    return  ResponseEntity.ok(new ResponseDTO(newAccessToken, refreshToken, user.getName()));
                 })
                 .orElseThrow(() -> new RuntimeException("Refresh Token Inválido"));
     }
