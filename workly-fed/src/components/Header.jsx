@@ -11,7 +11,7 @@ const Header = ({ onMenuClick, sidebarCollapsed }) => {
         Workly
       </Link>
       <div className="flex justify-around w-32 items-center">
-        <NotificationDropdown />
+        {/* <NotificationDropdown /> */}
         <ProfileDropdown />
       </div>
     </header>
