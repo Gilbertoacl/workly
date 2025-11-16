@@ -56,7 +56,7 @@ const ProfileDropdown = () => {
     <div className="relative" ref={dropdownRef}>
       <span
         onClick={toggleDropdown}
-        className="mx-5 flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-text dark:bg-primary cursor-pointer"
+        className="mx-5 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-text dark:bg-primary cursor-pointer"
       >
         GA
       </span>

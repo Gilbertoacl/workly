@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 
 const Header = ({ onMenuClick, sidebarCollapsed }) => {
   return (
-    <header className="flex justify-between items-center px-4 py-4 border border-border shadow-lg">
+    <header className="flex justify-between items-center px-4 py-1 border border-border shadow-lg">
       <MenuHamburguer onClick={onMenuClick} active={!sidebarCollapsed} />
       <Link to="/home" className="font-JuaRegular text-4xl">
         Workly
