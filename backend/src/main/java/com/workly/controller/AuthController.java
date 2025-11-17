@@ -1,22 +1,17 @@
 package com.workly.controller;
 
-import com.workly.entity.RefreshToken;
 import com.workly.dto.token.RequestRefreshTokenDTO;
 import com.workly.dto.user.AuthenticationDTO;
 import com.workly.dto.user.RegisterDTO;
 import com.workly.dto.user.ResponseDTO;
+import com.workly.entity.RefreshToken;
 import com.workly.entity.User;
-import com.workly.service.TokenService;
 import com.workly.repository.RefreshTokenRepository;
 import com.workly.repository.UserRepository;
 import com.workly.service.RefreshTokenService;
+import com.workly.service.TokenService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-
-import java.net.http.HttpResponse;
-import java.util.Optional;
-
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -43,7 +38,7 @@ public class AuthController {
 
         User user = (User) auth.getPrincipal();
         var token = tokenService.generatedToken(user);
-        var refreshtoken = refreshTokenService.creationRefreshToken(user.getId());
+        var refreshtoken = refreshTokenService.createRefreshToken(user.getId());
         return ResponseEntity.ok(new ResponseDTO(token, refreshtoken.getToken(), user.getName()));
     }
 
@@ -66,7 +61,7 @@ public class AuthController {
         String refreshToken = req.refreshToken();
 
         return refreshTokenRepository.findByToken(refreshToken)
-                .map(token -> refreshTokenService.verifyExpiration(token))
+                .map(token -> refreshTokenService.validateExpiration(token))
                 .map(RefreshToken::getUser)
                 .map(user -> {
                     String newAccessToken = tokenService.generatedToken(user);
