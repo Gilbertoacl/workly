@@ -8,30 +8,28 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/user")
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserService service;
 
-    @PatchMapping("/profile")
+    @PatchMapping("/updateProfile")
     public ResponseEntity<UserDTO> updateProfile(@AuthenticationPrincipal(expression = "id") Long userId,
                                                  @Valid @RequestBody UpdateProfileRequest request) {
         return ResponseEntity.ok(service.updateProfile(userId, request));
     }
 
-    @PatchMapping("/password")
+    @PatchMapping("/updatePassword")
     public ResponseEntity<UserDTO> updatePassword(@AuthenticationPrincipal(expression = "id") Long userId,
                                                  @RequestBody UpdatePasswordRequest request) {
         return ResponseEntity.ok(service.updatePassword(userId, request));
     }
 
+    @GetMapping("/details")
     public ResponseEntity<UserDTO> getUser(@AuthenticationPrincipal(expression = "id") Long userId) {
         return ResponseEntity.ok(service.getUser(userId));
     }
