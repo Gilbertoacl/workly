@@ -107,7 +107,7 @@ export default function UserContractsPage() {
                 return (
                   <div
                     key={contract.link_hash}
-                    className="p-6 bg-gray-950/40 border border-gray-800 rounded-xl shadow-md backdrop-blur-sm transition-all hover:border-accent/40 hover:-translate-y-[1px]"
+                    className="p-6 bg-[#14191C] border border-gray-800 rounded-xl shadow-md backdrop-blur-sm transition-all hover:border-accent/40 hover:-translate-y-[1px]"
                   >
                     <div className="flex flex-col md:flex-row justify-between gap-6">
                       {/* Dados do contrato */}
@@ -152,7 +152,7 @@ export default function UserContractsPage() {
                               e.target.value
                             )
                           }
-                          className="border border-gray-700 bg-gray-900 text-gray-200 rounded-md px-3 py-2 text-sm shadow-sm focus:ring-2 focus:ring-accent transition-all"
+                          className="border border-gray-700 bg-[#14191C] text-gray-200 rounded-md px-3 py-2 text-sm shadow-sm focus:ring-2 focus:ring-accent transition-all"
                         >
                           <option value="PENDING">Pendente</option>
                           <option value="ACTIVE">Ativo</option>
