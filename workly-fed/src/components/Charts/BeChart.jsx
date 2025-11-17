@@ -39,7 +39,7 @@ export function BarChart({ data }) {
           />
           <Bar dataKey="value" radius={[6, 6, 0, 0]}>
             {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={"#3b82f6"} />
+              <Cell key={`cell-${index}`} fill={"#008659"} />
             ))}
           </Bar>
         </ReBarChart>

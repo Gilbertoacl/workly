@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getUserDetails } from "@/features/services/userService";
+import Loader from "@/components/Loader";
 import EditProfileModal from "@/components/EditProfileModal";
 import ChangePasswordModal from "@/components/ChangePasswordModal";
 
@@ -12,8 +13,8 @@ export default function ProfilePage() {
     try {
       const data = await getUserDetails();
       setUser(data);
-    } catch (error) {
-      console.error("Erro ao carregar o usuário", error);
+    } catch {
+      console.error("Erro ao carregar o usuário");
     }
   };
 
@@ -21,49 +22,51 @@ export default function ProfilePage() {
     loadUser();
   }, []);
 
-  if (!user) {
-    return (
-      <div className="flex justify-center items-center py-20 text-textSecondary">
-        Carregando dados do perfil...
-      </div>
-    );
-  }
+  if (!user) return <Loader />;
 
   return (
-    <div className="max-w-xl mx-auto mt-10 bg-surfaceAlt p-8 rounded-xl border border-border shadow-lg transition-all">
-      <h1 className="text-2xl font-bold text-textPrimary mb-6">
-        Perfil do Usuário
-      </h1>
+    <div className="flex justify-center mt-12 px-6">
+      <div className="w-full max-w-xl bg-surface p-8 rounded-xl border border-border shadow-lg backdrop-blur-sm">
 
-      <div className="space-y-3 text-textSecondary">
-        <p><span className="font-semibold text-textPrimary">Nome:</span> {user.name}</p>
-        <p><span className="font-semibold text-textPrimary">Email:</span> {user.email}</p>
-        <p><span className="font-semibold text-textPrimary">Perfil:</span> {user.role}</p>
+        <h1 className="text-2xl font-bold text-textPrimary mb-6">Perfil</h1>
+
+        <div className="text-textSecondary space-y-2">
+          <p><span className="font-semibold text-textPrimary">Nome:</span> {user.name}</p>
+          <p><span className="font-semibold text-textPrimary">Email:</span> {user.email}</p>
+          <p><span className="font-semibold text-textPrimary">Perfil:</span> {user.role}</p>
+        </div>
+
+        <div className="flex flex-wrap gap-4 mt-8">
+          {/* Botão Principal */}
+          <button
+            onClick={() => setShowEditModal(true)}
+            className="
+              px-5 py-2 rounded-lg font-semibold shadow-sm bg-primary
+              bg-accent text-gray-900 hover:bg-primary-hover
+              transition-all duration-200
+            "
+          >
+            Editar Dados
+          </button>
+
+          {/* Botão Secundário Outline */}
+          <button
+            onClick={() => setShowPasswordModal(true)}
+            className="
+               px-5 py-2 rounded-lg font-semibold shadow-sm bg-primary
+              bg-accent text-gray-900 hover:bg-primary-hover
+              transition-all duration-200 
+            "
+          >
+            Alterar Senha
+          </button>
+        </div>
+
+        {showEditModal && <EditProfileModal onClose={() => setShowEditModal(false)} user={user} onUpdated={loadUser} />}
+        {showPasswordModal && <ChangePasswordModal onClose={() => setShowPasswordModal(false)} />}
+
       </div>
-
-      <div className="flex gap-4 mt-8">
-        <button
-          onClick={() => setShowEditModal(true)}
-          className="px-4 py-2 rounded bg-btnPrimary text-white hover:bg-btnPrimaryHover transition"
-        >
-          Editar informações
-        </button>
-
-        <button
-          onClick={() => setShowPasswordModal(true)}
-          className="px-4 py-2 rounded bg-blue-700 hover:bg-blue-800 text-white transition"
-        >
-          Alterar senha
-        </button>
-      </div>
-
-      {showEditModal && (
-        <EditProfileModal onClose={() => setShowEditModal(false)} user={user} onUpdated={loadUser} />
-      )}
-
-      {showPasswordModal && (
-        <ChangePasswordModal onClose={() => setShowPasswordModal(false)} />
-      )}
     </div>
   );
 }
+

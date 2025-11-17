@@ -27,7 +27,7 @@ public class RefreshTokenService {
         var user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-        refreshTokenRepository.deleteByUser(user);
+        //refreshTokenRepository.deleteByUser(user);
 
         RefreshToken refreshToken = RefreshToken.builder()
                 .user(user)

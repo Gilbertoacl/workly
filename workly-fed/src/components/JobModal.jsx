@@ -32,37 +32,40 @@ export default function JobModal({ job, onClose }) {
     if (e.target === e.currentTarget) onClose();
   };
 
-  const handleAddContract = async (linkHash) => {    
+  const handleAddContract = async (linkHash) => {   
+    console.log(linkHash) 
     try{
       await api.post("/api/users/contracts", { linkHash });
       setAdded(true);
     } catch (error) {
       console.log(error)
-      alert(error)
+      alert("Contrato ja adicionado a sua lista.")
     }
-
   };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
       onClick={handleOverlayClick}
     >
       <div
-        className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-3xl w-full relative modal-scroll"
+        className="rounded-xl p-6 max-w-3xl w-full relative modal-scroll border bg-[#14191C] border-[#1F2A35] shadow-xl"
         style={{
           maxHeight: "80vh",
           overflowY: "auto",
           scrollbarWidth: "thin",
-          scrollbarColor: "#a3a3a3 #f3f4f6",
+          scrollbarColor: "#4B5563 #1F2A35",
         }}
       >
+        {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
+          className="absolute top-2 right-3 text-[#9CA3AF] hover:text-white text-2xl font-bold transition"
         >
-          &times;
+          ×
         </button>
+
+        {/* Header */}
         <div className="flex items-center mb-4">
           <div className="flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-full overflow-hidden bg-white mr-4">
             {job.source === "workana" ? (
@@ -81,68 +84,70 @@ export default function JobModal({ job, onClose }) {
               </svg>
             )}
           </div>
-          <h2 className="text-xl font-bold">{job.title}</h2>
+          <h2 className="text-xl font-bold text-white leading-6">{job.title}</h2>
         </div>
-        <div className="mb-2 text-sm text-gray-500">{job.description}</div>
-        <div className="mb-4">
-          <span className="font-semibold">Orçamento:</span> R$ {job.minBudget} ~{" "}
-          {job.maxBudget}
+
+        {/* Description */}
+        <div className="mb-3 text-sm text-[#9CA3AF] leading-relaxed">
+          {job.description}
         </div>
-        <div className="flex flex-wrap gap-2 mb-4 items-center">
+
+        {/* Salary */}
+        <div className="mb-4 text-[#FFFFFF] font-medium">
+          <span className="font-semibold text-[#00B085]">Orçamento:</span>  
+          {" "}R$ {job.minBudget} ~ {job.maxBudget}
+        </div>
+
+        {/* Skills */}
+        <div className="flex flex-wrap gap-2 mb-5 items-center">
           <SkillBadge skills={job.skills} />
         </div>
-        <div className="flex gap-2 flex-wrap">
+
+        {/* CTA Buttons */}
+        <div className="flex gap-3 flex-wrap">
+          
+          {/* External Link */}
           <a
             href={job.link}
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition flex items-center justify-center font-semibold"
+            className="flex-1 bg-[#0070F3] hover:bg-[#0A84FF] text-white px-5 py-2 rounded-lg transition font-semibold text-center"
           >
             Ver vaga
           </a>
+
+          {/* Add Contract */}
           <button
-            onClick={() => {handleAddContract(job.linkHash)}}
+            onClick={() => handleAddContract(job.linkHash)}
             disabled={added}
-            className={`bg-green-600 text-white px-5 py-2 rounded-lg transition font-semibold flex items-center justify-center ${
-              added ? "bg-green-700" : "hover:bg-green-700"
-            }`}
+            className={`flex-1 px-5 py-2 rounded-lg text-white font-semibold transition 
+              ${added ? "bg-[#00936E]/60 cursor-not-allowed" : "bg-[#00936E] hover:bg-[#00B085]"}`}
           >
             {added ? (
-              <>
-                <FaCheck className="mr-2" />
-                Adicionado!
-              </>
+              <span className="flex items-center justify-center gap-2">
+                <FaCheck /> Adicionado!
+              </span>
             ) : (
               "Adicionar aos contratos"
             )}
           </button>
+
+          {/* Favorite Button */}
           <button
             onClick={handleFavorite}
             className="p-2 rounded-full transition flex items-center justify-center"
             aria-label={isFavorited ? "Desfavoritar" : "Favoritar"}
-            style={{ background: "none", border: "none" }}
           >
             <motion.span
               animate={
                 isFavorited
-                  ? {
-                      rotate: [0, 360],
-                      scale: [1, 0.6, 1.2, 1],
-                      color: "#facc15",
-                    }
-                  : {
-                      rotate: [360, 0],
-                      scale: [1, 1.2, 0.6, 1],
-                      color: "#a3a3a3",
-                    }
+                  ? { scale: [1, 1.3, 1], color: "#EAC54F" }
+                  : { scale: [1, 1.1, 1], color: "#6B7280" }
               }
-              transition={{
-                duration: 0.6,
-                ease: "easeInOut",
-              }}
+              transition={{ duration: 0.3 }}
               style={{ display: "inline-block" }}
             >
-              <FaStar size={32} />
+              <FaStar size={28} />
             </motion.span>
           </button>
         </div>

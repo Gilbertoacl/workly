@@ -1,11 +1,6 @@
-import {
-  FaHome,
-  FaSearch,
-  FaFileExcel,
-  FaDollarSign,
-} from "react-icons/fa";
+import { FaHome, FaSearch, FaFileExcel, FaDollarSign } from "react-icons/fa";
 import { FaGear } from "react-icons/fa6";
-import { Link, useLocation } from "react-router-dom"; 
+import { Link, useLocation } from "react-router-dom";
 
 const navItems = [
   { icon: <FaHome />, label: "Início", path: "/home" },
@@ -17,47 +12,45 @@ const navItems = [
 
 export default function Sidebar({ collapsed }) {
   const { pathname } = useLocation();
-
   return (
     <aside
-      className={`h-full bg-background border-r border-border transition-all duration-200 flex flex-col ${
-        collapsed ? "w-20" : "w-56"
-      }`}
+      className={`h-full bg-surface border-r border-border transition-all duration-300
+      flex flex-col ${collapsed ? "w-20" : "w-56"}`}
     >
-      <nav className="flex-1 mt-2">
+      <nav className="flex-1 mt-3 space-y-1">
         {navItems.map((item) => {
           const isActive = pathname === item.path;
-
           return (
             <Link
               key={item.label}
               to={item.path}
-              className={`flex items-center gap-4 px-4 py-3 cursor-pointer transition 
+              className={`
+                flex items-center gap-4 px-4 py-3 rounded-md mx-2
+                transition-colors text-text-primary
                 ${
                   isActive
-                    ? "bg-primary/10 text-primary font-semibold"
-                    : "hover:bg-gray-100 hover:text-primary"
-                }`}
+                    ? "bg-primary/15 text-primary font-semibold border border-primary/30"
+                    : "hover:bg-primary/10 hover:text-primary"
+                }
+              `}
             >
-              <span className="text-2xl">{item.icon}</span>
-              {!collapsed && (
-                <span className="text-base font-medium">{item.label}</span>
-              )}
+              <span className="text-xl">{item.icon}</span>
+              {!collapsed && <span>{item.label}</span>}
             </Link>
           );
         })}
       </nav>
 
-      <div className="px-4 py-3 border-t border-border text-xs text-gray-400 min-h-[56px] flex items-end">
+      <footer className="px-4 py-3 border-t border-border text-xs opacity-70 mb-3">
         {!collapsed ? (
           <div>
-            <div>Versão: 1.0.0</div>
-            <div>Release: 17/09/2025</div>
+            <p>Versão: 1.0.0</p>
+            <p>Release: 17/09/2025</p>
           </div>
         ) : (
-          <span className="mx-auto">v1.0.0</span>
+          <span className="block text-center">v1.0.0</span>
         )}
-      </div>
+      </footer>
     </aside>
   );
 }

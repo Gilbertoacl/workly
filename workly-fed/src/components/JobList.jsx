@@ -16,8 +16,8 @@ export default function JobList() {
   useEffect(() => {
     setFade(false);
     setLoading(true);
-    api
-      .get(`/api/jobs?page=${page}`)
+
+    api.get(`/api/jobs?page=${page}`)
       .then((response) => {
         setTimeout(() => {
           setJobs(response.data.content);
@@ -33,72 +33,67 @@ export default function JobList() {
       });
   }, [page]);
 
-  if (loading) {
-    return (
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-4">
-        {[...Array(6)].map((_, i) => (
-          <JobCardSkeleton key={i} />
-        ))}
-      </div>
-    );
-  }
-
-  if (!jobs.length && !loading) {
-    return (
-      <div className="flex flex-col items-center justify-center h-64 text-gray-500 dark:text-gray-400">
-        <FaRegSadTear size={48} className="mb-4" />
-        <span className="text-lg font-semibold">
-          Nenhum freela foi encontrado.
-        </span>
-        <span className="text-sm mt-2">
-          Tente ajustar os filtros ou volte mais tarde.
-        </span>
-      </div>
-    );
-  }
-
   return (
     <>
-      <div
-        className={`grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-4 transition-opacity duration-200 ${
-          fade ? "opacity-100" : "opacity-0"
-        }`}
-      >
-        {jobs.map((job) => (
-          <JobCard
-            key={job.linkHash}
-            job={job}
-            onClick={() => setSelectedJob(job)}
-            isSelected={selectedJob?.linkHash === job.linkHash}
-          />
-        ))}
+      {loading ? (
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-5">
+          {[...Array(6)].map((_, i) => (
+            <JobCardSkeleton key={i} />
+          ))}
+        </div>
+      ) : jobs.length === 0 ? (
+        <div className="flex flex-col items-center justify-center h-64 text-gray-400">
+          <FaRegSadTear size={48} className="mb-4 opacity-70" />
+          <span className="text-lg font-medium">Nenhum freela encontrado</span>
+          <span className="text-xs opacity-70 mt-1">
+            Ajuste filtros ou tente novamente mais tarde
+          </span>
+        </div>
+      ) : (
+        <>
+          <div
+            className={`grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-5 transition-opacity duration-300 ${
+              fade ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            {jobs.map((job) => (
+              <JobCard
+                key={job.linkHash}
+                job={job}
+                onClick={() => setSelectedJob(job)}
+                isSelected={selectedJob?.linkHash === job.linkHash}
+              />
+            ))}
+          </div>
 
-        {selectedJob && (
-          <JobModal
-            job={selectedJob}
-            onClose={() => setSelectedJob(null)}
-          />
-        )}
-      </div>
-      <div className="flex justify-center gap-2 mb-4">
-        <button
-          disabled={page === 0}
-          onClick={() => setPage(page - 1)}
-          className="content-center px-3 py-1 hover:-translate-x-1 disabled:opacity-50 disabled:translate-x-0"
-        >
-          <FaArrowLeft />
-        </button>
-        <span className="text-base px-3 py-1">
-          {page + 1} de {totalPages}
-        </span>
-        <button
-          disabled={page + 1 >= totalPages}
-          onClick={() => setPage(page + 1)}
-          className="content-center px-3 py-1 hover:translate-x-1 disabled:opacity-50 disabled:translate-x-0"
-        >
-          <FaArrowRight />
-        </button>
-      </div>
+          <div className="flex justify-center items-center gap-3 mt-6">
+            <button
+              disabled={page === 0}
+              onClick={() => setPage(page - 1)}
+              className="px-3 py-1 rounded-md border border-gray-600 hover:border-gray-400 hover:bg-gray-800 disabled:opacity-40 transition-all"
+            >
+              <FaArrowLeft />
+            </button>
+            <span className="font-medium text-gray-300 text-sm px-2">
+              {page + 1} / {totalPages}
+            </span>
+            <button
+              disabled={page + 1 >= totalPages}
+              onClick={() => setPage(page + 1)}
+              className="px-3 py-1 rounded-md border border-gray-600 hover:border-gray-400 hover:bg-gray-800 disabled:opacity-40 transition-all"
+            >
+              <FaArrowRight />
+            </button>
+          </div>
+
+          {selectedJob && (
+            <JobModal
+              job={selectedJob}
+              onClose={() => setSelectedJob(null)}
+            />
+          )}
+        </>
+      )}
     </>
   );
 }

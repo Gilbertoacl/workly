@@ -66,29 +66,27 @@ const ProfileDropdown = () => {
   ];
 
   return (
-    <div className="relative" ref={dropdownRef}>
-      <span
-        onClick={toggleDropdown}
-        className="mx-5 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-text dark:bg-primary cursor-pointer"
+    <div ref={dropdownRef} className="relative">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex h-12 w-12 rounded-full bg-primary 
+        text-background font-semibold items-center justify-center shadow-sm 
+        hover:bg-primary/30 transition"
       >
         {getInitials(user.nomeUsuario)}
-      </span>
+      </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-60 bg-primary border border-border rounded-md shadow-lg z-10">
-          {navItems.map((element, index) => (
-            <Link
-              key={element.label}
-              to={element.path}
-              onClick={element.method}
-              className={`flex items-center justify-start py-2 gap-2 ml-2 text-lg cursor-pointer ${
-                index < navItems.length - 1 ? "border-b hover:border-b-2" : ""
-              }
-                hover:font-semibold
-              `}
-            >
-              <span>{element.icon}</span>
-              {element.label}
+        <div className="absolute right-0 mt-2 w-60 bg-surface border border-border 
+          rounded-lg shadow-xl overflow-hidden animate-fadeIn z-50">
+          
+          {navItems.map((item, index) => (
+            <Link key={item.label} to={item.path} onClick={item.method}
+              className={`flex items-center gap-3 px-4 py-3 text-text-primary
+              hover:bg-primary/15 hover:text-primary transition
+              ${index < navItems.length - 1 ? "border-b border-border" : ""}`}>
+              <span className="text-lg">{item.icon}</span>
+              {item.label}
             </Link>
           ))}
         </div>

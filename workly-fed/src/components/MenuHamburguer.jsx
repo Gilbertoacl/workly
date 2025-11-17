@@ -8,9 +8,9 @@ const MenuHamburguer = ({ onClick, active }) => {
       aria-label="Alternar menu lateral"
       type="button"
     >
-      <div className={`rounded-2xl h-[3px] w-1/2 bg-textPrimary duration-500 ${active ? "rotate-[225deg] origin-right -translate-x-[12px] -translate-y-[1px]" : ""}`} />
-      <div className={`rounded-2xl h-[3px] w-full bg-textPrimary duration-500 ${active ? "-rotate-45" : ""}`} />
-      <div className={`rounded-2xl h-[3px] w-1/2 bg-textPrimary duration-500 place-self-end ${active ? "rotate-[225deg] origin-left translate-x-[12px] translate-y-[1px]" : ""}`} />
+      <div className={`rounded-2xl h-[3px] w-1/2 bg-primary  duration-500 ${active ? "rotate-[225deg] origin-right -translate-x-[12px] -translate-y-[1px]" : ""}`} />
+      <div className={`rounded-2xl h-[3px] w-full bg-primary  duration-500 ${active ? "-rotate-45" : ""}`} />
+      <div className={`rounded-2xl h-[3px] w-1/2 bg-primary  duration-500 place-self-end ${active ? "rotate-[225deg] origin-left translate-x-[12px] translate-y-[1px]" : ""}`} />
     </button>
   );
 };

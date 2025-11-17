@@ -4,7 +4,7 @@ import { FiEye, FiEyeOff } from "react-icons/fi";
 import { useNavigate, Link } from "react-router-dom";
 
 export default function LoginPage() {
-    const remembered = JSON.parse(localStorage.getItem("rememberedAccount") || "{}" );
+    const remembered = JSON.parse(localStorage.getItem("rememberedAccount") || "{}");
     const [email, setEmail] = useState(remembered.email || "");
     const [password, setPassword] = useState(remembered.password || "");
     const [remember, setRemember] = useState(!!remembered.remember);
@@ -18,7 +18,7 @@ export default function LoginPage() {
     const { login } = useAuth();
 
     function validateEmail(email) {
-        const emailRegex = /^[\w-.]+@[\w-]+\.[a-zA-Z]{2,}$/;
+        const emailRegex = /^[\w\.-]+@[\w\.-]+\.[a-zA-Z]{2,6}(\.[a-zA-Z]{2,6})?$/;
         return emailRegex.test(email);
     }
     function validatePassword(password) {
@@ -29,21 +29,18 @@ export default function LoginPage() {
         ev.preventDefault();
         setSubmitted(true);
         setLoginError("");
+
         let valid = true;
 
         if (!validateEmail(email)) {
             setEmailError("Digite um e-mail válido.");
             valid = false;
-        } else {
-            setEmailError("");
-        }
+        } else setEmailError("");
 
         if (!validatePassword(password)) {
             setPasswordError("A senha deve ter pelo menos 8 caracteres.");
             valid = false;
-        } else {
-            setPasswordError("");
-        }
+        } else setPasswordError("");
 
         if (!valid) return;
 
@@ -52,140 +49,130 @@ export default function LoginPage() {
         try {
             await login(email, password);
 
-            (remember) ? localStorage.setItem("rememberedAccount", JSON.stringify({ email, password, remember: true })) : localStorage.removeItem("rememberedAccount");
-           
+            remember
+                ? localStorage.setItem("rememberedAccount", JSON.stringify({ email, password, remember: true }))
+                : localStorage.removeItem("rememberedAccount");
+
             navigate("/home");
         } catch (error) {
-            setLoginError(error.message); 
+            setLoginError(error.message);
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen px-2 sm:px-0">
-            <div className="max-w-lg w-full">
-                <div
-                    style={{
-                        boxShadow:
-                            "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
-                    }}
-                    className="bg-gray-800 rounded-lg shadow-xl overflow-hidden"
-                >
-                    <div className="p-6 sm:p-8">
-                        <h2 className="text-center text-3xl font-extrabold text-white">
-                            Bem-vindo de volta
-                        </h2>
-                        <p className="mt-10 text-center text-gray-400">
-                            Faça seu login
-                        </p>
-                        <form className="mt-4 space-y-6" onSubmit={handleSubmit}>
-                            {loginError && (
-                                <div className="bg-red-500/10 border border-red-500 text-red-400 rounded p-2 text-sm mb-2 text-center" role="alert" aria-live="assertive">
-                                    {loginError}
-                                    {loginError.includes("Usuário ou Senha inválidos.") && (
-                                        <div className="mt-2">
-                                            <Link to="/register" className="text-indigo-400 underline">Criar nova conta</Link> ou
-                                            <Link to="/forgot-password" className="text-indigo-400 underline ml-1">Recuperar senha</Link>
-                                        </div>
-                                    )}
+        <div className="flex items-center justify-center min-h-screen bg-[#0D1117] px-4">
+            <div className="w-full max-w-md">
+                <div className="bg-[#151B23] border border-gray-700 rounded-xl shadow-2xl p-6 sm:p-8 transition-transform duration-300 hover:-translate-y-1">
+                    
+                    <h2 className="text-center text-3xl font-bold text-white mb-2">
+                        Bem-vindo de volta
+                    </h2>
+                    <p className="text-center text-[#9CA3AF] mb-6">
+                        Faça login para continuar
+                    </p>
+
+                    {/* Error Box */}
+                    {loginError && (
+                        <div className="bg-[#FF4E4E]/15 border border-[#FF4E4E] text-[#FF4E4E] rounded-lg p-2 text-sm text-center mb-4 animate-pulse">
+                            {loginError}
+                            {loginError.includes("Usuário ou Senha inválidos.") && (
+                                <div className="mt-2">
+                                    <Link to="/register" className="text-[#00D26A] underline hover:text-[#00A556]">Criar nova conta</Link> ou
+                                    <Link to="/forgot-password" className="text-[#00D26A] underline ml-1 hover:text-[#00A556]">Recuperar senha</Link>
                                 </div>
                             )}
-                            <div className="rounded-md space-y-4">
-                                <div className="space-y-2">
-                                    <label className="block text-sm font-medium text-gray-300 mb-1" htmlFor="email">
-                                        E-mail <span className="text-red-400">*</span>
-                                    </label>
-                                    <input
-                                        placeholder="E-mail"
-                                        className={`appearance-none relative block w-full px-3 py-3 border bg-gray-700 text-white rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm ${submitted && emailError ? "border-red-500" : "border-gray-700"}`}
-                                        required
-                                        autoComplete="email"
-                                        type="email"
-                                        name="email"
-                                        id="email"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        onFocus={() => setEmailError("")}
-                                        aria-invalid={!!emailError}
-                                        aria-describedby="email-error"
-                                    />
-                                    {submitted && emailError && (
-                                        <span id="email-error" className="text-red-400 text-xs mt-1 block" aria-live="polite">{emailError}</span>
-                                    )}
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="block text-sm font-medium text-gray-300 mb-1" htmlFor="password">
-                                        Senha <span className="text-red-400">*</span>
-                                    </label>
-                                    <div className="relative">
-                                        <input
-                                            placeholder="Senha"
-                                            className={`appearance-none relative block w-full px-3 py-3 border bg-gray-700 text-white rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm ${submitted && passwordError ? "border-red-500" : "border-gray-700"} pr-10`}
-                                            required
-                                            autoComplete="current-password"
-                                            type={showPassword ? "text" : "password"}
-                                            name="password"
-                                            id="password"
-                                            value={password}
-                                            onChange={(e) => setPassword(e.target.value)}
-                                            onFocus={() => setPasswordError("")}
-                                            aria-invalid={!!passwordError}
-                                            aria-describedby="password-error"
-                                        />
-                                        <button
-                                            type="button"
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 focus:outline-none z-20"
-                                            tabIndex={0}
-                                            onClick={() => setShowPassword((v) => !v)}
-                                            aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
-                                        >
-                                            {showPassword ? <FiEyeOff /> : <FiEye />}
-                                        </button>
-                                    </div>
-                                    {submitted && passwordError && (
-                                        <span id="password-error" className="text-red-400 text-xs mt-1 block" aria-live="polite">{passwordError}</span>
-                                    )}
-                                </div>
-                            </div>
-                            <div className="flex items-center justify-between mt-4">
-                                <div className="flex items-center">
-                                    <input
-                                        className="h-4 w-4 text-indigo-500 focus:ring-indigo-400 border-gray-600 rounded accent-indigo-500"
-                                        type="checkbox"
-                                        name="remember-me"
-                                        id="remember-me"
-                                        checked={remember}
-                                        onChange={(e) => setRemember(e.target.checked)}
-                                        aria-checked={remember}
-                                    />
-                                    <label className="ml-2 block text-sm text-gray-400" htmlFor="remember-me">
-                                        Lembrar minha conta
-                                    </label>
-                                </div>
-                                <div className="text-sm">
-                                    <Link className="font-medium text-indigo-500 hover:text-indigo-400" to="/forgot-password">
-                                        Esqueci minha senha!
-                                    </Link>
-                                </div>
-                            </div>
-                            <div>
+                        </div>
+                    )}
+
+                    <form className="space-y-5" onSubmit={handleSubmit}>
+                        
+                        {/* EMAIL */}
+                        <div>
+                            <label htmlFor="email" className="block text-sm font-medium text-white mb-1">
+                                E-mail <span className="text-red-400">*</span>
+                            </label>
+                            <input
+                                id="email"
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                onFocus={() => setEmailError("")}
+                                placeholder="Digite seu e-mail"
+                                className={`w-full px-3 py-3 rounded-md bg-[#0D1117] text-white border 
+                                ${submitted && emailError ? "border-[#FF4E4E]" : "border-gray-700"} 
+                                focus:outline-none focus:ring-2 focus:ring-[#00D26A]`}
+                            />
+                            {submitted && emailError && (
+                                <small className="text-[#FF4E4E]">{emailError}</small>
+                            )}
+                        </div>
+
+                        {/* PASSWORD */}
+                        <div>
+                            <label htmlFor="password" className="block text-sm font-medium text-white mb-1">
+                                Senha <span className="text-red-400">*</span>
+                            </label>
+                            <div className="relative">
+                                <input
+                                    id="password"
+                                    type={showPassword ? "text" : "password"}
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    onFocus={() => setPasswordError("")}
+                                    placeholder="Digite sua senha"
+                                    className={`w-full pr-10 px-3 py-3 rounded-md bg-[#0D1117] text-white border 
+                                    ${submitted && passwordError ? "border-[#FF4E4E]" : "border-gray-700"} 
+                                    focus:outline-none focus:ring-2 focus:ring-[#00D26A]`}
+                                />
                                 <button
-                                    className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-gray-900 bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-60 mt-2 sm:mt-0"
-                                    type="submit"
-                                    disabled={loading}
+                                    type="button"
+                                    onClick={() => setShowPassword(prev => !prev)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-white"
                                 >
-                                    {loading ? "Entrando..." : "Entrar"}
+                                    {showPassword ? <FiEyeOff /> : <FiEye />}
                                 </button>
                             </div>
-                        </form>
-                    </div>
-                    <div className="px-6 sm:px-8 py-4 bg-gray-700 text-center">
-                        <span className="text-gray-400">Não possui uma conta? </span>
-                        <Link to="/register" className="font-medium text-indigo-500 hover:text-indigo-400">
+                            {submitted && passwordError && (
+                                <small className="text-[#FF4E4E]">{passwordError}</small>
+                            )}
+                        </div>
+
+                        {/* REMEMBER */}
+                        <div className="flex items-center justify-between">
+                            <label className="flex items-center gap-2 text-[#9CA3AF] text-sm cursor-pointer select-none">
+                                <input
+                                    type="checkbox"
+                                    checked={remember}
+                                    onChange={(e) => setRemember(e.target.checked)}
+                                    className="accent-[#00D26A] w-4 h-4"
+                                />
+                                Lembrar minha conta
+                            </label>
+                            <Link to="/forgot-password" className="text-[#00D26A] text-sm hover:text-[#00A556]">
+                                Esqueci minha senha
+                            </Link>
+                        </div>
+
+                        {/* SUBMIT BUTTON */}
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full bg-[#00D26A] text-black font-bold py-3 rounded-md hover:bg-[#00A556] 
+                            transition disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {loading ? "Entrando..." : "Entrar"}
+                        </button>
+                    </form>
+
+                    {/* REGISTER */}
+                    <p className="text-center text-[#9CA3AF] mt-6">
+                        Não possui uma conta?{" "}
+                        <Link to="/register" className="text-[#00D26A] hover:text-[#00A556] font-medium">
                             Cadastre-se
                         </Link>
-                    </div>
+                    </p>
                 </div>
             </div>
         </div>
