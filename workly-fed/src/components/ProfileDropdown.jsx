@@ -44,7 +44,7 @@ const ProfileDropdown = () => {
     {
       icon: <FaRegUser />,
       label: "Editar meu perfil",
-      path: "/profile",
+      path: "/home/profile",
       method: "",
     },
     {

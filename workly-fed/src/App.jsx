@@ -9,6 +9,7 @@ import UserContractsPage from "./pages/UserContractsPage";
 import ReportsPage from "./pages/ReportsPage";
 import JobsSearchPage from "./pages/JobsSearchPage";
 import HelpPage from "./pages/HelpPage";
+import ProfilePage from "./pages/ProfilePage";
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
         <Route path="contracts" element={<UserContractsPage />} />
         <Route path="reports" element={<ReportsPage />} />
         <Route path="search" element={<JobsSearchPage />} />
+        <Route path="profile" element={<ProfilePage />} />
         <Route path="help" element={<HelpPage />} />
       </Route>
     </Routes>
