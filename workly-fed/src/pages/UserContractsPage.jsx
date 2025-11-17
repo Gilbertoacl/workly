@@ -7,9 +7,9 @@ import { formatBudget, formatDate } from "@/common/utils/UtilsGlobal";
 
 export default function UserContractsPage() {
   const { contracts: hookContracts, loading, error } = useContracts();
-  const [contracts, setContracts] = useState([]); // estado local principal
+  const [contracts, setContracts] = useState([]);
   const [filteredContracts, setFilteredContracts] = useState([]);
-  const [filter, setFilter] = useState("ACTIVE");
+  const [filter, setFilter] = useState("PENDING");
   const [pendingChanges, setPendingChanges] = useState({});
   const [updating, setUpdating] = useState(null);
 

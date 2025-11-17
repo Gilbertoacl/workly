@@ -24,7 +24,9 @@ public class TokenService {
 
             return JWT.create()
                     .withIssuer("portal-vagas-api")
-                    .withSubject(user.getEmail())
+                    .withSubject(String.valueOf(user.getId()))
+                    .withClaim("email", user.getEmail())
+                    .withClaim("role", user.getRole().name())
                     .withExpiresAt(this.generateExpirationData())
                     .sign(algorithm);
         } catch (JWTCreationException exception) {
