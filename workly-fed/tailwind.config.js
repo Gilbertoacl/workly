@@ -35,7 +35,7 @@ export default {
     },
 
     fontFamily: {
-      JuaRegular: ['Jua', 'sans-serif'],
+      JuaRegular: ['FugazOne', 'sans-serif'],
     },
 
     screens: {
