@@ -24,12 +24,20 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# DB_LOCAL_CONFIG = {
+#     "dbname": "dbworkly",
+#     "user": os.getenv("DB_USER_POSTGRES"),
+#     "password": os.getenv("DB_PASSWORD"),
+#     "host": os.getenv("DB_HOST_POST"),
+#     "port": os.getenv("DB_PORT_POST")
+# }
+
 DB_CONFIG = {
-    "dbname": "dbworkly",
-    "user": os.getenv("DB_USER_POSTGRES"),
-    "password": os.getenv("DB_PASSWORD"),
-    "host": os.getenv("DB_HOST_POST"),
-    "port": os.getenv("DB_PORT_POST")
+    "dbname": "workly",
+    "user": "workly",
+    "password": "workly",
+    "host": "db",
+    "port": 5432
 }
 
 # ====== Configuração base ======
@@ -42,8 +50,8 @@ ERROR_LOG = "scraper_errors.log"
 DEFAULT_USD_TO_BRL = 5.60
 
 # Config padrão (pode ser alterado por flags)
-DEFAULT_MAX_SCROLL_ATTEMPTS = 15
-DEFAULT_HEADLESS = True
+DEFAULT_MAX_SCROLL_ATTEMPTS = 30
+DEFAULT_HEADLESS = False
 DEFAULT_WAIT_SHORT = 2  # espera curta em segundos
 DEFAULT_WAIT_MED = 4
 DEFAULT_WAIT_LONG = 8
@@ -62,17 +70,27 @@ logger = logging.getLogger("workly-scraper")
 
 
 # ====== Helpers ======
+CHROME_DRIVER_VERSION = "142.0.7444.175" 
+
 def setup_driver(headless: bool = True):
     options = webdriver.ChromeOptions()
+    
     if headless:
-        # headless novo (Chrome 109+)
         options.add_argument("--headless=new")
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
+        
+        # Indica onde está o executável do navegador (Chromium v142)
+        options.binary_location = '/usr/bin/chromium' 
+        
     options.add_argument("--disable-gpu")
     options.add_argument("--log-level=3")
-    service = Service(ChromeDriverManager().install())
+    
+    # 🚨 PONTO CRÍTICO: Forçar o download da versão do driver compatível (v142)
+    service = Service(ChromeDriverManager(driver_version=CHROME_DRIVER_VERSION).install())
+    
     driver = webdriver.Chrome(service=service, options=options)
+    
     return driver
 
 
@@ -191,6 +209,14 @@ def open_link_in_new_tab_and_get_budget(driver, link: str, wait_seconds=3) -> st
         driver.close()
         driver.switch_to.window(driver.window_handles[0])
 
+def formatar_habilidades(habilidades_brutas: str) -> str:
+    if not habilidades_brutas:
+        return ""
+
+    partes = re.split(r'[\n,]+', habilidades_brutas)
+    partes = [p.strip() for p in partes if p.strip()]
+
+    return " | ".join(partes)
 
 def get_full_description_and_skills(driver, card, link: str) -> Tuple[str, str]:
     """
@@ -315,7 +341,7 @@ def get_full_description_and_skills(driver, card, link: str) -> Tuple[str, str]:
             driver.close()
             driver.switch_to.window(driver.window_handles[0])
 
-    return (descricao or "").strip(), (habilidades or "").strip()
+    return (descricao or "").strip(), formatar_habilidades(habilidades)
 
 
 def scroll_until_end(driver, max_attempts: int = DEFAULT_MAX_SCROLL_ATTEMPTS, pause: float = 2.5) -> bool:

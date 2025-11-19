@@ -39,11 +39,24 @@ services:
       context: ./workly-fed
     container_name: workly-frontend
     ports:
-      - "3000:80"
+      - "5173:80"
     depends_on:
       - backend
     networks:
       - workly-net
+  
+  scrapper:
+    build: 
+      context: ./workly-scraping
+    container_name: workly-scraper
+    depends_on:
+      - db
+      - backend
+    networks:
+      - workly-net
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=postgresql://workly:workly@db:5432/workly
 
 networks:
   workly-net:
