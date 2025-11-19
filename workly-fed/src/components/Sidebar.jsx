@@ -45,7 +45,7 @@ export default function Sidebar({ collapsed }) {
         {!collapsed ? (
           <div>
             <p>Versão: 1.0.0</p>
-            <p>Release: 17/09/2025</p>
+            <p>Release: 17/11/2025</p>
           </div>
         ) : (
           <span className="block text-center">v1.0.0</span>

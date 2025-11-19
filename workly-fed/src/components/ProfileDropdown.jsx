@@ -47,12 +47,12 @@ const ProfileDropdown = () => {
       path: "/home/profile",
       method: "",
     },
-    {
-      icon: <FaGear />,
-      label: "Configurações",
-      path: "/home/settings",
-      method: "",
-    },
+    // {
+    //   icon: <FaGear />,
+    //   label: "Configurações",
+    //   path: "/home/settings",
+    //   method: "",
+    // },
     { icon: <FaInfoCircle />, 
       label: "Ajuda", 
       path: "/home/help", 

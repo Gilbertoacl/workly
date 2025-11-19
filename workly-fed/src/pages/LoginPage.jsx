@@ -67,7 +67,7 @@ export default function LoginPage() {
                 <div className="bg-[#151B23] border border-gray-700 rounded-xl shadow-2xl p-6 sm:p-8 transition-transform duration-300 hover:-translate-y-1">
                     
                     <h2 className="text-center text-3xl font-bold text-white mb-2">
-                        Bem-vindo de volta
+                        Bem-vindo ao <span className="font-JuaRegular text-4xl tracking-wide text-primary transition">Workly</span>
                     </h2>
                     <p className="text-center text-[#9CA3AF] mb-6">
                         Faça login para continuar

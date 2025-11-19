@@ -33,7 +33,7 @@ export default function ProfilePage() {
         <div className="text-textSecondary space-y-2">
           <p><span className="font-semibold text-textPrimary">Nome:</span> {user.name}</p>
           <p><span className="font-semibold text-textPrimary">Email:</span> {user.email}</p>
-          <p><span className="font-semibold text-textPrimary">Perfil:</span> {user.role}</p>
+          {/* <p><span className="font-semibold text-textPrimary">Perfil:</span> {user.role}</p> */}
         </div>
 
         <div className="flex flex-wrap gap-4 mt-8">

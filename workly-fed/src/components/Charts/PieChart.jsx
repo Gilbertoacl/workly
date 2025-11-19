@@ -3,14 +3,14 @@ import { PieChart as RePieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 
 // 🎨 Mapeamento fixo de cores por tipo de contrato
 const STATUS_COLORS = {
   COMPLETED: "#22c55e", 
-  CANCELED: "#ef4444",
+  CANCELLED: "#ef4444",
   PENDING: "#facc15",
   ACTIVE: "#3b82f6",
 };
 
 const STATUS_NAMES = {
   COMPLETED: "Concluído",
-  CANCELED: "Cancelado",
+  CANCELLED: "Cancelado",
   PENDING: "Pendente",
   ACTIVE: "Ativo",
 };
