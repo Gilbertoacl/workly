@@ -1,9 +1,9 @@
 FROM python:3.11-slim
 
-# Instalar Chromium + dependências (mantém seu setup atual)
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
+# Instalar Chromium + dependências
+RUN apt-get update && apt-get install -y --no-install-recommends \
     chromium \
+    chromium-driver \
     libnss3 \
     libasound2 \
     libfontconfig \
@@ -18,8 +18,11 @@ RUN apt-get update \
     xdg-utils \
     libxtst6 \
     wget \
-    cron \
     && rm -rf /var/lib/apt/lists/*
+
+# Variáveis de ambiente do Chrome/Selenium
+ENV CHROME_BIN=/usr/bin/chromium
+ENV CHROMEDRIVER_PATH=/usr/bin/chromedriver
 
 WORKDIR /app
 
@@ -28,15 +31,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# Permissão do script
-RUN chmod +x /app/run_scraper.sh
-
-# Registrar cron job
-COPY crontab.txt /etc/cron.d/scraper-cron
-RUN chmod 0644 /etc/cron.d/scraper-cron
-RUN crontab /etc/cron.d/scraper-cron
-
-# Criar arquivo de log
-RUN touch /var/log/cron.log
-
-CMD cron && tail -f /var/log/cron.log
+# Executa diretamente o main.py
+CMD ["python", "main.py"]
