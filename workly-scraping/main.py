@@ -15,7 +15,6 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
-from webdriver_manager.chrome import ChromeDriverManager
 
 import os
 import psycopg2
@@ -23,14 +22,6 @@ import hashlib
 from dotenv import load_dotenv
 
 load_dotenv()
-
-# DB_LOCAL_CONFIG = {
-#     "dbname": "dbworkly",
-#     "user": os.getenv("DB_USER_POSTGRES"),
-#     "password": os.getenv("DB_PASSWORD"),
-#     "host": os.getenv("DB_HOST_POST"),
-#     "port": os.getenv("DB_PORT_POST")
-# }
 
 DB_CONFIG = {
     "dbname": os.getenv("DB_NAME"),
@@ -71,27 +62,31 @@ logger = logging.getLogger("workly-scraper")
 
 
 # ====== Helpers ======
-CHROME_DRIVER_VERSION = "142.0.7444.175" 
-
 def setup_driver(headless: bool = True):
     options = webdriver.ChromeOptions()
-    
+
+    # Caminho do Chrome instalado pelo Dockerfile
+    options.binary_location = os.getenv("CHROME_BIN", "/usr/bin/google-chrome")
+
+    # Modo headless necessário em servidores
     if headless:
         options.add_argument("--headless=new")
-        options.add_argument("--no-sandbox")
-        options.add_argument("--disable-dev-shm-usage")
-        
-        # Indica onde está o executável do navegador (Chromium v142)
-        options.binary_location = '/usr/bin/chromium' 
-        
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--disable-gpu")
+    options.add_argument("--window-size=1920,1080")
+    options.add_argument("--disable-infobars")
+    options.add_argument("--disable-extensions")
     options.add_argument("--log-level=3")
-    
-    # 🚨 PONTO CRÍTICO: Forçar o download da versão do driver compatível (v142)
-    service = Service(ChromeDriverManager(driver_version=CHROME_DRIVER_VERSION).install())
-    
+
+    # Caminho do ChromeDriver instalado pelo Dockerfile
+    chromedriver_path = os.getenv("CHROMEDRIVER_PATH", "/usr/local/bin/chromedriver")
+    service = Service(chromedriver_path)
+
+    logger.info(f"Usando Chrome em: {options.binary_location}")
+    logger.info(f"Usando ChromeDriver em: {chromedriver_path}")
+
     driver = webdriver.Chrome(service=service, options=options)
-    
     return driver
 
 
