@@ -62,32 +62,24 @@ logger = logging.getLogger("workly-scraper")
 
 
 # ====== Helpers ======
-def setup_driver(headless: bool = True):
+def setup_driver(headless=True):
     options = webdriver.ChromeOptions()
 
-    # Caminho do Chrome instalado pelo Dockerfile
-    options.binary_location = os.getenv("CHROME_BIN", "/usr/bin/google-chrome")
-
-    # Modo headless necessário em servidores
     if headless:
         options.add_argument("--headless=new")
+
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--disable-gpu")
-    options.add_argument("--window-size=1920,1080")
-    options.add_argument("--disable-infobars")
-    options.add_argument("--disable-extensions")
     options.add_argument("--log-level=3")
 
-    # Caminho do ChromeDriver instalado pelo Dockerfile
-    chromedriver_path = os.getenv("CHROMEDRIVER_PATH", "/usr/local/bin/chromedriver")
-    service = Service(chromedriver_path)
+    # Caminho do Chromium instalado pelo apt
+    options.binary_location = "/usr/bin/chromium"
 
-    logger.info(f"Usando Chrome em: {options.binary_location}")
-    logger.info(f"Usando ChromeDriver em: {chromedriver_path}")
+    # Caminho do chromedriver instalado pelo apt
+    service = Service("/usr/bin/chromedriver")
 
-    driver = webdriver.Chrome(service=service, options=options)
-    return driver
+    return webdriver.Chrome(service=service, options=options)
 
 
 def get_usd_brl_rate(timeout: int = 6) -> float:

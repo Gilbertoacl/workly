@@ -56,7 +56,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedOrigins(List.of("https://workly-seven.vercel.app"));
+        // config.setAllowedOrigins(List.of("http://localhost:5173"));
         config.setAllowedMethods(List.of("POST", "PUT", "DELETE", "GET", "OPTIONS", "PATCH"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
